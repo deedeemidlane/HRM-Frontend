@@ -1,52 +1,31 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Search,
   Plus,
   Users,
   Clock,
-  MoreHorizontal,
   FileEdit,
   Trash2,
   Eye,
-  CheckCircle,
-  XCircle,
   Calendar,
   MapPin,
 } from "lucide-react"
 
-function getStatusStyle(interview) {
-  return interview.status === "Scheduled"
-    ? "bg-blue-100 text-blue-800"
-    : interview.status === "Completed"
-      ? "bg-green-100 text-green-800"
-      : interview.status === "Rejected" && "bg-red-100 text-red-800"
-}
-
 export default function RecruitmentManagementPage() {
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tin tuyển dụng</h1>
-          <p className="text-muted-foreground">Quản lý tin tuyển dụng và thông tin tuyển dụng.</p>
+          <p className="text-muted-foreground">
+            Quản lý tin tuyển dụng và thông tin tuyển dụng.
+          </p>
         </div>
         <Button className="bg-[#3db87a] hover:bg-[#35a46c]" asChild>
           <Link href="/dashboard/recruitment/create">
-            <Plus className="mr-2 h-4 w-4" />
-            ĐĂNG TIN
+            <Plus className="h-4 w-4" />
+            Đăng tin
           </Link>
         </Button>
       </div>
@@ -56,23 +35,37 @@ export default function RecruitmentManagementPage() {
           <CardTitle>Danh sách tin tuyển dụng</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {jobs.map((job) => (
+          {allJobs.map((job) => (
             <div key={job.id} className="rounded-lg border bg-white p-6">
               <div className="space-y-4">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                  <h3 className="text-xl font-bold text-gray-800">{job.position}</h3>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    {job.title}
+                  </h3>
                   <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" className="h-8 gap-1 text-[#3db87a] border-[#3db87a]">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1 text-[#3db87a] hover:text-[#3db87a]"
+                    >
                       <Eye className="h-4 w-4" />
-                      ẨN
+                      Ẩn
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1 text-blue-600 border-blue-600">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1 text-blue-600 hover:text-blue-600"
+                    >
                       <FileEdit className="h-4 w-4" />
-                      CHỈNH SỬA
+                      Chỉnh sửa
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 gap-1 text-red-600 border-red-600">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1 text-red-600 hover:text-red-600"
+                    >
                       <Trash2 className="h-4 w-4" />
-                      XÓA
+                      Xoá
                     </Button>
                   </div>
                 </div>
@@ -99,201 +92,6 @@ export default function RecruitmentManagementPage() {
           ))}
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <Tabs defaultValue="jobs">
-            <TabsList>
-              <TabsTrigger value="jobs">Tin tuyển dụng</TabsTrigger>
-              <TabsTrigger value="applications">Quản lý ứng viên</TabsTrigger>
-              <TabsTrigger value="interviews">Lịch phỏng vấn</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="jobs">
-            <TabsContent value="jobs" className="space-y-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xl font-medium">Danh sách tin tuyển dụng</h2>
-                <Button className="bg-[#3db87a] hover:bg-[#35a46c]">
-                  <Plus className="mr-2 h-4 w-4" />
-                  ĐĂNG TIN
-                </Button>
-              </div>
-              <div className="space-y-4"></div>
-            </TabsContent>
-            <TabsContent value="applications" className="space-y-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full max-w-sm">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search applications..." className="w-full pl-8" />
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button variant="outline" size="sm">
-                    Export
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Filter
-                  </Button>
-                </div>
-              </div>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Applicant</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Applied Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {applications.map((application) => (
-                      <TableRow key={application.id}>
-                        <TableCell className="font-medium">{application.applicant}</TableCell>
-                        <TableCell>{application.position}</TableCell>
-                        <TableCell>{application.appliedDate}</TableCell>
-                        <TableCell>
-                          <div
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              application.status === "Screening"
-                                ? "bg-blue-100 text-blue-800"
-                                : application.status === "Interview"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : application.status === "Rejected"
-                                    ? "bg-red-100 text-red-800"
-                                    : application.status === "Hired"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {application.status}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Resume
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Schedule Interview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Reject
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="flex items-center justify-end space-x-2">
-                <Button variant="outline" size="sm">
-                  Previous
-                </Button>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="interviews" className="space-y-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full max-w-sm">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search interviews..." className="w-full pl-8" />
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button variant="outline" size="sm">
-                    Export
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Filter
-                  </Button>
-                </div>
-              </div>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Applicant</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Interview Date</TableHead>
-                      <TableHead>Interviewer</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {interviews.map((interview) => (
-                      <TableRow key={interview.id}>
-                        <TableCell className="font-medium">{interview.applicant}</TableCell>
-                        <TableCell>{interview.position}</TableCell>
-                        <TableCell>{interview.interviewDate}</TableCell>
-                        <TableCell>{interview.interviewer}</TableCell>
-                        <TableCell>
-                          <div
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusStyle(interview)}`}
-                          >
-                            {interview.status}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <FileEdit className="mr-2 h-4 w-4" />
-                                Add Feedback
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Move to Next Round
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="flex items-center justify-end space-x-2">
-                <Button variant="outline" size="sm">
-                  Previous
-                </Button>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
     </div>
   )
 }
@@ -302,7 +100,7 @@ const jobs = [
   {
     id: 1,
     position: "Lập Trình Viên ASP.Net, C# (Intern, Fresher)",
-    location: "Bắc Giang",
+    location: "Hà Nội",
     salaryRange: "5 - 10 triệu",
     deadline: "01/04/2025",
     applicants: 2,
@@ -311,7 +109,7 @@ const jobs = [
   {
     id: 2,
     position: "Ruby On Rails Developer",
-    location: "Đà Nẵng",
+    location: "Hà Nội",
     salaryRange: "Thỏa thuận",
     deadline: "04/04/2025",
     applicants: 2,
@@ -337,112 +135,149 @@ const jobs = [
   },
 ]
 
-const applications = [
+const allJobs = [
   {
     id: 1,
-    applicant: "John Smith",
-    position: "Senior Software Engineer",
-    appliedDate: "Apr 12, 2023",
-    status: "Screening",
+    title: "Kỹ sư phần mềm cao cấp",
+    location: "Hà Nội, Việt Nam",
+    type: "Toàn thời gian",
+    department: "Kỹ thuật",
+    salaryRange: "20 - 30 triệu VNĐ",
+    deadline: "15/05/2025",
+    description:
+      "Chúng tôi đang tìm kiếm một kỹ sư phần mềm cao cấp có kinh nghiệm để tham gia vào đội ngũ phát triển sản phẩm của chúng tôi. Bạn sẽ làm việc với các công nghệ hiện đại để xây dựng các giải pháp sáng tạo cho khách hàng.",
+    responsibilities: [
+      "Phát triển và duy trì các ứng dụng web sử dụng React, Node.js và các công nghệ hiện đại khác",
+      "Thiết kế và triển khai các API RESTful",
+      "Tối ưu hóa hiệu suất ứng dụng và đảm bảo khả năng mở rộng",
+      "Cộng tác với các nhóm sản phẩm và thiết kế để đảm bảo chất lượng và tính nhất quán",
+      "Tham gia vào quá trình đánh giá code và cải thiện chất lượng code",
+    ],
+    requirements: [
+      "Tối thiểu 5 năm kinh nghiệm phát triển phần mềm",
+      "Thành thạo JavaScript/TypeScript, React, Node.js",
+      "Kinh nghiệm với cơ sở dữ liệu SQL và NoSQL",
+      "Hiểu biết sâu về các nguyên tắc thiết kế phần mềm và mẫu thiết kế",
+      "Kỹ năng giao tiếp và làm việc nhóm tốt",
+      "Kinh nghiệm với AWS hoặc các nền tảng đám mây khác là một lợi thế",
+    ],
+    benefits: [
+      "Mức lương cạnh tranh và thưởng hiệu suất",
+      "Bảo hiểm sức khỏe toàn diện cho nhân viên và gia đình",
+      "Chế độ nghỉ phép linh hoạt",
+      "Môi trường làm việc năng động và sáng tạo",
+      "Cơ hội học tập và phát triển chuyên môn",
+      "Các hoạt động team building và sự kiện công ty thường xuyên",
+    ],
+    skills: ["React", "Node.js", "TypeScript", "AWS"],
+    applicants: 1,
   },
   {
     id: 2,
-    applicant: "Emily Johnson",
-    position: "UX/UI Designer",
-    appliedDate: "Apr 16, 2023",
-    status: "Interview",
+    title: "Nhà thiết kế UX/UI",
+    location: "Làm việc từ xa",
+    type: "Toàn thời gian",
+    department: "Thiết kế",
+    salaryRange: "15 - 25 triệu VNĐ",
+    deadline: "20/05/2025",
+    description:
+      "Chúng tôi đang tìm kiếm một nhà thiết kế UX/UI tài năng để tham gia vào đội ngũ thiết kế của chúng tôi. Bạn sẽ chịu trách nhiệm tạo ra các trải nghiệm người dùng hấp dẫn và trực quan cho các sản phẩm của chúng tôi.",
+    responsibilities: [
+      "Thiết kế giao diện người dùng cho các ứng dụng web và di động",
+      "Tạo wireframes, prototypes và mockups",
+      "Thực hiện nghiên cứu người dùng và phân tích dữ liệu",
+      "Cộng tác với các nhà phát triển để đảm bảo triển khai chính xác",
+      "Duy trì và phát triển hệ thống thiết kế",
+    ],
+    requirements: [
+      "Tối thiểu 3 năm kinh nghiệm thiết kế UX/UI",
+      "Thành thạo Figma, Adobe XD hoặc các công cụ thiết kế tương tự",
+      "Kinh nghiệm với nghiên cứu người dùng và thiết kế dựa trên dữ liệu",
+      "Hiểu biết về nguyên tắc thiết kế web và di động",
+      "Portfolio thể hiện kỹ năng thiết kế và giải quyết vấn đề",
+      "Kỹ năng giao tiếp và thuyết trình tốt",
+    ],
+    benefits: [
+      "Mức lương cạnh tranh và thưởng hiệu suất",
+      "Bảo hiểm sức khỏe toàn diện",
+      "Chế độ làm việc linh hoạt và từ xa",
+      "Ngân sách cho các công cụ và khóa học thiết kế",
+      "Cơ hội tham gia các hội thảo và sự kiện thiết kế",
+      "Môi trường làm việc sáng tạo và hỗ trợ",
+    ],
+    skills: ["Figma", "Adobe XD", "User Research", "Prototyping"],
+    applicants: 2,
   },
   {
     id: 3,
-    applicant: "Michael Brown",
-    position: "Product Manager",
-    appliedDate: "Apr 8, 2023",
-    status: "Rejected",
+    title: "Quản lý sản phẩm",
+    location: "Hà Nội, Việt Nam",
+    type: "Toàn thời gian",
+    department: "Sản phẩm",
+    salaryRange: "25 - 40 triệu VNĐ",
+    deadline: "10/05/2025",
+    description:
+      "Chúng tôi đang tìm kiếm một Quản lý sản phẩm có kinh nghiệm để dẫn dắt quá trình phát triển sản phẩm từ ý tưởng đến ra mắt. Bạn sẽ làm việc chặt chẽ với các đội ngũ chức năng khác nhau để đảm bảo sản phẩm đáp ứng nhu cầu của người dùng và mục tiêu kinh doanh.",
+    responsibilities: [
+      "Xác định và ưu tiên các tính năng sản phẩm dựa trên nghiên cứu thị trường và phản hồi của người dùng",
+      "Phát triển lộ trình sản phẩm và chiến lược dài hạn",
+      "Làm việc với các đội ngũ kỹ thuật, thiết kế và tiếp thị để đảm bảo thực hiện thành công",
+      "Phân tích dữ liệu sản phẩm để đưa ra quyết định dựa trên dữ liệu",
+      "Quản lý vòng đời sản phẩm từ ý tưởng đến ra mắt và cải tiến liên tục",
+    ],
+    requirements: [
+      "Tối thiểu 4 năm kinh nghiệm quản lý sản phẩm",
+      "Kinh nghiệm với phương pháp Agile và công cụ quản lý sản phẩm",
+      "Kỹ năng phân tích dữ liệu mạnh mẽ",
+      "Hiểu biết về UX và nguyên tắc thiết kế",
+      "Kỹ năng giao tiếp, thuyết trình và đàm phán xuất sắc",
+      "Bằng cấp trong lĩnh vực kinh doanh, kỹ thuật hoặc lĩnh vực liên quan",
+    ],
+    benefits: [
+      "Mức lương cạnh tranh và thưởng hiệu suất",
+      "Bảo hiểm sức khỏe toàn diện cho nhân viên và gia đình",
+      "Chế độ nghỉ phép linh hoạt",
+      "Cơ hội học tập và phát triển chuyên môn",
+      "Môi trường làm việc năng động và sáng tạo",
+      "Cơ hội tham gia vào các dự án có tác động lớn",
+    ],
+    skills: ["Product Strategy", "Agile", "Market Research", "Roadmapping"],
+    applicants: 2,
   },
   {
     id: 4,
-    applicant: "Sarah Davis",
-    position: "Data Scientist",
-    appliedDate: "Apr 21, 2023",
-    status: "New",
-  },
-  {
-    id: 5,
-    applicant: "David Wilson",
-    position: "Marketing Specialist",
-    appliedDate: "Apr 14, 2023",
-    status: "Interview",
-  },
-  {
-    id: 6,
-    applicant: "Jennifer Taylor",
-    position: "HR Coordinator",
-    appliedDate: "Apr 19, 2023",
-    status: "Screening",
-  },
-  {
-    id: 7,
-    applicant: "Robert Martinez",
-    position: "Frontend Developer",
-    appliedDate: "Apr 10, 2023",
-    status: "Hired",
-  },
-  {
-    id: 8,
-    applicant: "Lisa Anderson",
-    position: "Backend Developer",
-    appliedDate: "Apr 23, 2023",
-    status: "New",
-  },
-]
-
-const interviews = [
-  {
-    id: 1,
-    applicant: "Emily Johnson",
-    position: "UX/UI Designer",
-    interviewDate: "Apr 25, 2023 - 10:00 AM",
-    interviewer: "Alex Thompson",
-    status: "Scheduled",
-  },
-  {
-    id: 2,
-    applicant: "David Wilson",
-    position: "Marketing Specialist",
-    interviewDate: "Apr 24, 2023 - 2:00 PM",
-    interviewer: "Sarah Miller",
-    status: "Scheduled",
-  },
-  {
-    id: 3,
-    applicant: "Jennifer Taylor",
-    position: "HR Coordinator",
-    interviewDate: "Apr 26, 2023 - 11:30 AM",
-    interviewer: "Michael Clark",
-    status: "Scheduled",
-  },
-  {
-    id: 4,
-    applicant: "Robert Martinez",
-    position: "Frontend Developer",
-    interviewDate: "Apr 18, 2023 - 1:00 PM",
-    interviewer: "Jessica White",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    applicant: "John Smith",
-    position: "Senior Software Engineer",
-    interviewDate: "Apr 27, 2023 - 3:30 PM",
-    interviewer: "Daniel Brown",
-    status: "Scheduled",
-  },
-  {
-    id: 6,
-    applicant: "Lisa Anderson",
-    position: "Backend Developer",
-    interviewDate: "Apr 28, 2023 - 9:00 AM",
-    interviewer: "Ryan Johnson",
-    status: "Scheduled",
+    title: "Chuyên gia phân tích dữ liệu",
+    location: "Hà Nội, Việt Nam",
+    type: "Toàn thời gian",
+    department: "Kỹ thuật",
+    salaryRange: "18 - 30 triệu VNĐ",
+    deadline: "25/05/2025",
+    description:
+      "Chúng tôi đang tìm kiếm một Chuyên gia phân tích dữ liệu để phân tích các bộ dữ liệu phức tạp và cung cấp thông tin chi tiết có giá trị cho việc ra quyết định kinh doanh và cải tiến sản phẩm.",
+    responsibilities: [
+      "Phân tích dữ liệu phức tạp để xác định xu hướng và mẫu",
+      "Phát triển và duy trì các bảng điều khiển và báo cáo",
+      "Cộng tác với các bên liên quan để xác định nhu cầu dữ liệu",
+      "Thực hiện phân tích thống kê và xây dựng mô hình dự đoán",
+      "Trình bày kết quả phân tích cho các bên liên quan không chuyên về kỹ thuật",
+    ],
+    requirements: [
+      "Tối thiểu 3 năm kinh nghiệm phân tích dữ liệu",
+      "Thành thạo Python, SQL và các công cụ trực quan hóa dữ liệu",
+      "Kinh nghiệm với các kỹ thuật học máy và phân tích thống kê",
+      "Kỹ năng giải quyết vấn đề và tư duy phân tích mạnh mẽ",
+      "Kỹ năng giao tiếp và thuyết trình tốt",
+      "Bằng cấp trong lĩnh vực Khoa học dữ liệu, Thống kê hoặc lĩnh vực liên quan",
+    ],
+    benefits: [
+      "Mức lương cạnh tranh và thưởng hiệu suất",
+      "Bảo hiểm sức khỏe toàn diện",
+      "Chế độ nghỉ phép linh hoạt",
+      "Ngân sách cho các công cụ và khóa học",
+      "Cơ hội tham gia các hội thảo và sự kiện",
+      "Môi trường làm việc hỗ trợ và thách thức",
+    ],
+    skills: ["Python", "Machine Learning", "SQL", "Data Visualization"],
+    applicants: 0,
   },
 ]

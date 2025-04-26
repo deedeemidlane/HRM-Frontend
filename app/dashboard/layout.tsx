@@ -1,8 +1,6 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,53 +15,44 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, User, Settings, LogOut, Menu, ChevronDown } from "lucide-react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import useLogout from "@/hooks/authentication/useLogout"
+import { DialogTitle } from "@radix-ui/react-dialog"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const { logout } = useLogout()
+
   const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(true)
 
-  useEffect(() => {
-    // In a real application, this would check for a valid session/token
-    // For demo purposes, we'll just set it to true
-    setIsAuthenticated(true)
-  }, [])
-
-  useEffect(() => {
-    // Redirect to login if not authenticated
-    if (!isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, router])
-
-  const handleLogout = () => {
-    setIsAuthenticated(false)
+  const handleLogout = async () => {
+    await logout()
     router.push("/login")
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <DashboardSidebar />
+        <DashboardSidebar userRole="hr" />
       </div>
 
       {/* Mobile Sidebar */}
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden absolute left-4 top-3 z-40">
+          <Button
+            variant="outline"
+            size="icon"
+            className="md:hidden absolute left-4 top-3 z-40"
+          >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0">
+        <SheetContent side="left" className="p-0 w-fit">
+          <DialogTitle></DialogTitle>
           <DashboardSidebar />
         </SheetContent>
       </Sheet>
@@ -85,10 +74,12 @@ export default function DashboardLayout({
                     <AvatarImage src="/placeholder.svg" alt="User" />
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
-                  <div className="hidden flex-col items-start text-sm md:flex">
+                  {/* <div className="hidden flex-col items-start text-sm md:flex">
                     <span>John Doe</span>
-                    <span className="text-xs text-muted-foreground">HR Manager</span>
-                  </div>
+                    <span className="text-xs text-muted-foreground">
+                      HR Manager
+                    </span>
+                  </div> */}
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -106,7 +97,7 @@ export default function DashboardLayout({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

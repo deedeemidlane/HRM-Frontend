@@ -8,121 +8,81 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ArrowRight, Users, Briefcase, Award, Send } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
-import { Toaster } from "@/components/ui/toaster"
+import { ArrowRight, Users, Briefcase, Award, Send, Menu } from "lucide-react"
+import toast from "react-hot-toast"
+import { HomeHeader } from "@/components/home-header"
 
 export default function Home() {
   const aboutRef = useRef<HTMLElement>(null)
   const contactRef = useRef<HTMLElement>(null)
 
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }
-
   const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Giả lập gửi form
-    toast({
-      title: "Gửi thành công!",
-      description: "Chúng tôi đã nhận được tin nhắn của bạn và sẽ liên hệ lại sớm nhất có thể.",
-    })
-    // Reset form
+    toast.success("Cảm ơn bạn đã gửi tin nhắn!")
     e.currentTarget.reset()
   }
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Toaster />
-      <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-        <Link className="flex items-center justify-center" href="/">
-          <span className="font-bold text-2xl text-[#3db87a]">ADA</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/"
-            onClick={(e) => {
-              e.preventDefault()
-              window.scrollTo({ top: 0, behavior: "smooth" })
-            }}
-          >
-            Trang chủ
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/#about"
-            onClick={(e) => {
-              e.preventDefault()
-              scrollToSection(aboutRef)
-            }}
-          >
-            Giới thiệu
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/jobs">
-            Tuyển dụng
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/#contact"
-            onClick={(e) => {
-              e.preventDefault()
-              scrollToSection(contactRef)
-            }}
-          >
-            Liên hệ
-          </Link>
-        </nav>
-        <div className="ml-4">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/login">Đăng nhập</Link>
-          </Button>
-        </div>
-      </header>
+      <HomeHeader aboutRef={aboutRef} contactRef={contactRef} />
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f8faf9]">
-          <div className="container px-4 md:px-6">
+        <section className="w-full py-12 md:py-24 bg-[#f8faf9]">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="space-y-4">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Chào mừng đến với ADA</h1>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Chào mừng đến với ADA
+                </h1>
                 <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Chúng tôi tin vào việc trao quyền cho nhân viên để đạt được sự vĩ đại. Hãy tham gia đội ngũ của chúng
-                  tôi và trở thành một phần của điều phi thường.
+                  Chúng tôi tin vào việc trao quyền cho nhân viên để đạt được sự
+                  vĩ đại. Hãy tham gia đội ngũ của chúng tôi và trở thành một
+                  phần của điều phi thường.
                 </p>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button className="bg-[#3db87a] hover:bg-[#35a46c]" asChild>
                     <Link href="/jobs">
-                      Xem vị trí tuyển dụng <ArrowRight className="ml-2 h-4 w-4" />
+                      Xem vị trí tuyển dụng{" "}
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button variant="outline" onClick={() => scrollToSection(aboutRef)}>
-                    Tìm hiểu thêm về chúng tôi
+                  <Button
+                    variant="outline"
+                    // onClick={() => scrollToSection(aboutRef)}
+                  >
+                    <Link href="/#about">Tìm hiểu thêm về chúng tôi</Link>
                   </Button>
                 </div>
               </div>
-              <div className="mx-auto lg:ml-auto flex justify-center">
+              <div className="lg:ml-auto flex justify-center">
                 <img
                   alt="Đội ngũ ADA"
                   className="rounded-lg object-cover"
                   height="400"
-                  src="/placeholder.svg?height=400&width=600"
+                  src="/company.jpg"
                   width="600"
                 />
               </div>
             </div>
           </div>
         </section>
-        <section ref={aboutRef} className="w-full py-12 md:py-24 lg:py-32" id="about">
-          <div className="container px-4 md:px-6">
+        <section
+          ref={aboutRef}
+          className="w-full py-12 md:py-24 lg:py-32"
+          id="about"
+        >
+          <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-[#edf7f2] px-3 py-1 text-sm text-[#3db87a]">Về ADA</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Xây dựng tương lai cùng nhau</h2>
+                <div className="inline-block rounded-lg bg-[#edf7f2] px-3 py-1 text-sm text-[#3db87a]">
+                  Về ADA
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Xây dựng tương lai cùng nhau
+                </h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  ADA là một công ty tiên phong, tập trung vào đổi mới và xuất sắc. Chúng tôi nỗ lực tạo ra một môi
-                  trường làm việc nơi tài năng phát triển và ý tưởng nở rộ.
+                  ADA là một công ty tiên phong, tập trung vào đổi mới và xuất
+                  sắc. Chúng tôi nỗ lực tạo ra một môi trường làm việc nơi tài
+                  năng phát triển và ý tưởng nở rộ.
                 </p>
               </div>
             </div>
@@ -134,8 +94,9 @@ export default function Home() {
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Đội ngũ đa dạng</h3>
                   <p className="text-gray-500">
-                    Chúng tôi tập hợp những cá nhân tài năng từ nhiều nền tảng khác nhau để tạo ra một môi trường làm
-                    việc phong phú và hòa nhập.
+                    Chúng tôi tập hợp những cá nhân tài năng từ nhiều nền tảng
+                    khác nhau để tạo ra một môi trường làm việc phong phú và hòa
+                    nhập.
                   </p>
                 </div>
               </div>
@@ -146,8 +107,8 @@ export default function Home() {
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Cơ hội phát triển</h3>
                   <p className="text-gray-500">
-                    Chúng tôi cung cấp các cơ hội học tập và phát triển liên tục để giúp nhân viên đạt được tiềm năng
-                    tối đa của họ.
+                    Chúng tôi cung cấp các cơ hội học tập và phát triển liên tục
+                    để giúp nhân viên đạt được tiềm năng tối đa của họ.
                   </p>
                 </div>
               </div>
@@ -158,8 +119,9 @@ export default function Home() {
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold">Phúc lợi cạnh tranh</h3>
                   <p className="text-gray-500">
-                    Chúng tôi cung cấp các gói phúc lợi toàn diện được thiết kế để hỗ trợ sức khỏe và cân bằng công
-                    việc-cuộc sống của nhân viên.
+                    Chúng tôi cung cấp các gói phúc lợi toàn diện được thiết kế
+                    để hỗ trợ sức khỏe và cân bằng công việc-cuộc sống của nhân
+                    viên.
                   </p>
                 </div>
               </div>
@@ -167,21 +129,27 @@ export default function Home() {
           </div>
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f8faf9]">
-          <div className="container px-4 md:px-6">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-[#edf7f2] px-3 py-1 text-sm text-[#3db87a]">
                   Vị trí nổi bật
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Tham gia đội ngũ của chúng tôi</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Tham gia đội ngũ của chúng tôi
+                </h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Khám phá các vị trí hiện tại và tìm vai trò phù hợp với kỹ năng và nguyện vọng của bạn.
+                  Khám phá các vị trí hiện tại và tìm vai trò phù hợp với kỹ
+                  năng và nguyện vọng của bạn.
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-2">
               {featuredJobs.map((job) => (
-                <div key={job.id} className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div
+                  key={job.id}
+                  className="rounded-lg border bg-card text-card-foreground shadow-sm"
+                >
                   <div className="p-6 space-y-4">
                     <div className="space-y-2">
                       <h3 className="text-2xl font-bold">{job.title}</h3>
@@ -218,14 +186,23 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section ref={contactRef} className="w-full py-12 md:py-24 lg:py-32" id="contact">
-          <div className="container px-4 md:px-6">
+        <section
+          ref={contactRef}
+          className="w-full py-12 md:py-24 lg:py-32"
+          id="contact"
+        >
+          <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-[#edf7f2] px-3 py-1 text-sm text-[#3db87a]">Liên hệ</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Liên hệ với chúng tôi</h2>
+                <div className="inline-block rounded-lg bg-[#edf7f2] px-3 py-1 text-sm text-[#3db87a]">
+                  Liên hệ
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Liên hệ với chúng tôi
+                </h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Có câu hỏi hoặc muốn tìm hiểu thêm? Hãy liên hệ với chúng tôi ngay hôm nay.
+                  Có câu hỏi hoặc muốn tìm hiểu thêm? Hãy liên hệ với chúng tôi
+                  ngay hôm nay.
                 </p>
               </div>
             </div>
@@ -289,14 +266,16 @@ export default function Home() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      Tòa nhà ADA, 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh
+                      144 Xuân Thuỷ, Dịch Vọng Hậu, Cầu Giấy, Hà Nội
                     </p>
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">Giờ làm việc</h3>
                   <div className="mt-3 space-y-2">
-                    <p className="text-gray-500">Thứ Hai - Thứ Sáu: 8:00 - 17:30</p>
+                    <p className="text-gray-500">
+                      Thứ Hai - Thứ Sáu: 8:00 - 17:30
+                    </p>
                     <p className="text-gray-500">Thứ Bảy: 8:00 - 12:00</p>
                     <p className="text-gray-500">Chủ Nhật: Đóng cửa</p>
                   </div>
@@ -333,7 +312,14 @@ export default function Home() {
                         strokeLinejoin="round"
                         className="h-5 w-5"
                       >
-                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <rect
+                          x="2"
+                          y="2"
+                          width="20"
+                          height="20"
+                          rx="5"
+                          ry="5"
+                        ></rect>
                         <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                         <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                       </svg>
@@ -360,19 +346,37 @@ export default function Home() {
                 </div>
               </div>
               <div className="rounded-lg border bg-card p-6">
-                <h3 className="text-xl font-bold mb-4">Gửi tin nhắn cho chúng tôi</h3>
+                <h3 className="text-xl font-bold mb-4">
+                  Gửi tin nhắn cho chúng tôi
+                </h3>
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Họ và tên</Label>
-                    <Input id="name" name="name" placeholder="Nhập họ và tên của bạn" required />
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Nhập họ và tên của bạn"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" placeholder="Nhập địa chỉ email của bạn" required />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Nhập địa chỉ email của bạn"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subject">Tiêu đề</Label>
-                    <Input id="subject" name="subject" placeholder="Nhập tiêu đề tin nhắn" required />
+                    <Input
+                      id="subject"
+                      name="subject"
+                      placeholder="Nhập tiêu đề tin nhắn"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="message">Tin nhắn</Label>
@@ -384,7 +388,10 @@ export default function Home() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-[#3db87a] hover:bg-[#35a46c]">
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#3db87a] hover:bg-[#35a46c]"
+                  >
                     <Send className="mr-2 h-4 w-4" />
                     Gửi tin nhắn
                   </Button>
@@ -395,7 +402,9 @@ export default function Home() {
         </section>
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-gray-500">© 2023 Công ty ADA. Tất cả các quyền được bảo lưu.</p>
+        <p className="text-xs text-gray-500">
+          © 2025 Công ty ADA. Tất cả các quyền được bảo lưu.
+        </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4" href="#">
             Điều khoản dịch vụ
@@ -431,7 +440,7 @@ const featuredJobs = [
   {
     id: 3,
     title: "Quản lý sản phẩm",
-    location: "Hồ Chí Minh, Việt Nam",
+    location: "Hà Nội, Việt Nam",
     type: "Toàn thời gian",
     description:
       "Dẫn dắt quá trình phát triển sản phẩm từ ý tưởng đến ra mắt, làm việc chặt chẽ với các đội ngũ chức năng.",
@@ -442,7 +451,8 @@ const featuredJobs = [
     title: "Chuyên gia phân tích dữ liệu",
     location: "Hà Nội, Việt Nam",
     type: "Toàn thời gian",
-    description: "Phân tích các bộ dữ liệu phức tạp để thúc đẩy quyết định kinh doanh và cải tiến sản phẩm.",
+    description:
+      "Phân tích các bộ dữ liệu phức tạp để thúc đẩy quyết định kinh doanh và cải tiến sản phẩm.",
     skills: ["Python", "Machine Learning", "SQL", "Data Visualization"],
   },
 ]

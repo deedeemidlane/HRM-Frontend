@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,15 +18,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, MoreHorizontal, FileEdit, Trash2, Key, Shield } from "lucide-react"
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  FileEdit,
+  Trash2,
+  Key,
+  Shield,
+} from "lucide-react"
 
 export default function UsersManagementPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quản lý tài khoản</h1>
-          <p className="text-muted-foreground">Quản lý tài khoản người dùng trong hệ thống.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Quản lý tài khoản
+          </h1>
+          <p className="text-muted-foreground">
+            Quản lý tài khoản người dùng trong hệ thống.
+          </p>
         </div>
         <Button className="bg-[#3db87a] hover:bg-[#35a46c]">
           <Plus className="mr-2 h-4 w-4" />
@@ -35,7 +54,11 @@ export default function UsersManagementPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Tìm kiếm tài khoản..." className="w-full pl-8" />
+              <Input
+                type="search"
+                placeholder="Tìm kiếm tài khoản..."
+                className="w-full pl-8"
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" size="sm">
@@ -69,10 +92,13 @@ export default function UsersManagementPage() {
                         variant="outline"
                         className={cn(
                           "border-none",
-                          user.role === "Admin" && "bg-purple-100 text-purple-800",
+                          user.role === "Admin" &&
+                            "bg-purple-100 text-purple-800",
                           user.role === "HR" && "bg-blue-100 text-blue-800",
-                          user.role === "Manager" && "bg-amber-100 text-amber-800",
-                          user.role === "Employee" && "bg-green-100 text-green-800",
+                          user.role === "Manager" &&
+                            "bg-amber-100 text-amber-800",
+                          user.role === "Employee" &&
+                            "bg-green-100 text-green-800"
                         )}
                       >
                         {user.role}
@@ -83,8 +109,10 @@ export default function UsersManagementPage() {
                         variant="outline"
                         className={cn(
                           "border-none",
-                          user.status === "Hoạt động" && "bg-green-100 text-green-800",
-                          user.status === "Tạm khóa" && "bg-red-100 text-red-800",
+                          user.status === "Hoạt động" &&
+                            "bg-green-100 text-green-800",
+                          user.status === "Tạm khóa" &&
+                            "bg-red-100 text-red-800"
                         )}
                       >
                         {user.status}
@@ -126,14 +154,14 @@ export default function UsersManagementPage() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2">
+          {/* <div className="flex items-center justify-end space-x-2">
             <Button variant="outline" size="sm">
               Trước
             </Button>
             <Button variant="outline" size="sm">
               Sau
             </Button>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>

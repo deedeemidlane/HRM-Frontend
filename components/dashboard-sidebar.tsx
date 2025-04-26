@@ -37,7 +37,15 @@ interface SidebarItemProps {
   role?: string[]
 }
 
-const SidebarItem = ({ icon, label, href, isActive, children, onClick, role }: SidebarItemProps) => {
+const SidebarItem = ({
+  icon,
+  label,
+  href,
+  isActive,
+  children,
+  onClick,
+  role,
+}: SidebarItemProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const hasChildren = Boolean(children)
 
@@ -54,7 +62,14 @@ const SidebarItem = ({ icon, label, href, isActive, children, onClick, role }: S
     <>
       <div className="mr-2">{icon}</div>
       <span className="flex-1 text-left">{label}</span>
-      {hasChildren && <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen ? "rotate-180" : "")} />}
+      {hasChildren && (
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 transition-transform",
+            isOpen ? "rotate-180" : ""
+          )}
+        />
+      )}
     </>
   )
 
@@ -65,7 +80,9 @@ const SidebarItem = ({ icon, label, href, isActive, children, onClick, role }: S
           href={href}
           className={cn(
             "flex items-center rounded-md px-3 py-2 text-sm font-medium",
-            isActive ? "bg-[#edf7f2] text-[#3db87a]" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+            isActive
+              ? "bg-[#edf7f2] text-[#3db87a]"
+              : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
           )}
         >
           {content}
@@ -73,13 +90,20 @@ const SidebarItem = ({ icon, label, href, isActive, children, onClick, role }: S
       ) : (
         <Button
           variant="ghost"
-          className={cn("flex w-full justify-start px-3 py-2 text-sm font-medium", isOpen ? "bg-gray-100" : "")}
+          className={cn(
+            "flex w-full justify-start px-3 py-2 text-sm font-medium",
+            isOpen ? "bg-gray-100" : ""
+          )}
           onClick={handleClick}
         >
           {content}
         </Button>
       )}
-      {hasChildren && isOpen && <div className="ml-6 mt-1 border-l border-gray-200 pl-3">{children}</div>}
+      {hasChildren && isOpen && (
+        <div className="ml-6 mt-1 border-l border-gray-200 pl-3">
+          {children}
+        </div>
+      )}
     </div>
   )
 }
@@ -88,11 +112,11 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-white">
-      <div className="flex h-14 items-center border-b px-4">
+    <div className="flex h-full w-72 flex-col border-r bg-white">
+      <div className="flex h-16 items-center border-b px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <span className="font-bold text-2xl text-[#3db87a]">ADA</span>
-          <span>HR</span>
+          <span className="pl-2 border-l-2">Trang quản lý</span>
         </Link>
       </div>
       <div className="flex-1 overflow-auto py-4">
@@ -102,12 +126,15 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
             label="Dashboard"
             href="/dashboard"
             isActive={pathname === "/dashboard"}
-            role={["admin", "hr", "manager", "employee"]}
+            role={["admin", "hr", "manager"]}
           />
 
           {/* Admin Features */}
           {userRole === "admin" && (
-            <SidebarItem icon={<Shield className="h-5 w-5" />} label="Quản trị hệ thống">
+            <SidebarItem
+              icon={<Shield className="h-5 w-5" />}
+              label="Quản trị hệ thống"
+            >
               <SidebarItem
                 icon={<UserCog className="h-4 w-4" />}
                 label="Quản lý tài khoản"
@@ -125,7 +152,10 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
 
           {/* HR Features */}
           {(userRole === "admin" || userRole === "hr") && (
-            <SidebarItem icon={<Users className="h-5 w-5" />} label="Quản lý nhân sự">
+            <SidebarItem
+              icon={<Users className="h-5 w-5" />}
+              label="Quản lý nhân sự"
+            >
               <SidebarItem
                 icon={<Users className="h-4 w-4" />}
                 label="Danh sách nhân viên"
@@ -161,12 +191,18 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
 
           {/* Recruitment Features */}
           {(userRole === "admin" || userRole === "hr") && (
-            <SidebarItem icon={<Briefcase className="h-5 w-5" />} label="Tuyển dụng">
+            <SidebarItem
+              icon={<Briefcase className="h-5 w-5" />}
+              label="Tuyển dụng"
+            >
               <SidebarItem
                 icon={<FileText className="h-4 w-4" />}
                 label="Tin tuyển dụng"
                 href="/dashboard/recruitment"
-                isActive={pathname === "/dashboard/recruitment"}
+                isActive={
+                  pathname === "/dashboard/recruitment" ||
+                  pathname === "/dashboard/recruitment/create"
+                }
               />
               <SidebarItem
                 icon={<UserPlus className="h-4 w-4" />}
@@ -178,14 +214,19 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
                 icon={<Calendar className="h-4 w-4" />}
                 label="Lịch phỏng vấn"
                 href="/dashboard/recruitment/interviews"
-                isActive={pathname === "/dashboard/recruitment/interviews"}
+                isActive={pathname.includes(
+                  "/dashboard/recruitment/interviews"
+                )}
               />
             </SidebarItem>
           )}
 
           {/* Manager Features */}
           {(userRole === "admin" || userRole === "manager") && (
-            <SidebarItem icon={<CheckSquare className="h-5 w-5" />} label="Quản lý bộ phận">
+            <SidebarItem
+              icon={<CheckSquare className="h-5 w-5" />}
+              label="Quản lý bộ phận"
+            >
               <SidebarItem
                 icon={<Clock className="h-4 w-4" />}
                 label="Duyệt đơn nghỉ phép/OT"
@@ -208,7 +249,10 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
           )}
 
           {/* Employee Features */}
-          {(userRole === "admin" || userRole === "hr" || userRole === "manager" || userRole === "employee") && (
+          {(userRole === "admin" ||
+            userRole === "hr" ||
+            userRole === "manager" ||
+            userRole === "employee") && (
             <SidebarItem icon={<UserCog className="h-5 w-5" />} label="Cá nhân">
               <SidebarItem
                 icon={<Users className="h-4 w-4" />}

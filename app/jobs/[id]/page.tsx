@@ -1,24 +1,29 @@
+// "use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Clock, Calendar, ArrowLeft, BriefcaseIcon } from "lucide-react"
 import { JobApplicationModal } from "@/components/job-application-modal"
+import { HomeHeader } from "@/components/home-header"
 
 interface JobDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const jobId = Number.parseInt(params.id)
-  const job = allJobs.find((job) => job.id === jobId)
+export default async function JobDetailPage({ params }: JobDetailPageProps) {
+  const { id } = await params
+  const job = allJobs.find((job) => job.id === Number.parseInt(id))
 
   if (!job) {
     return (
-      <div className="container py-20 text-center">
+      <div className="container mx-auto py-20 text-center">
         <h1 className="text-2xl font-bold">Không tìm thấy công việc</h1>
-        <p className="mt-4 text-muted-foreground">Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+        <p className="mt-4 text-muted-foreground">
+          Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+        </p>
         <Button className="mt-6" asChild>
           <Link href="/jobs">Quay lại danh sách công việc</Link>
         </Button>
@@ -28,32 +33,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-        <Link className="flex items-center justify-center" href="/">
-          <span className="font-bold text-2xl text-[#3db87a]">ADA</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/">
-            Trang chủ
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/#about">
-            Giới thiệu
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/jobs">
-            Tuyển dụng
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="/#contact">
-            Liên hệ
-          </Link>
-        </nav>
-        <div className="ml-4">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/login">Đăng nhập</Link>
-          </Button>
-        </div>
-      </header>
+      <HomeHeader />
       <main className="flex-1">
-        <div className="container py-10">
+        <div className="container px-4 md:px-6 mx-auto pb-10 pt-4">
           <div className="mb-6">
             <Button variant="ghost" size="sm" asChild className="mb-4">
               <Link href="/jobs">
@@ -79,7 +61,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <Calendar className="h-4 w-4" />
                 <span>Hạn nộp: {job.deadline}</span>
               </div>
-              <Badge className="bg-[#edf7f2] text-[#3db87a]">{job.department}</Badge>
+              <Badge className="bg-[#edf7f2] text-[#3db87a]">
+                {job.department}
+              </Badge>
             </div>
           </div>
 
@@ -137,10 +121,12 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <div className="mt-6 rounded-lg bg-muted p-4">
                   <h3 className="font-medium">Thông tin liên hệ</h3>
                   <p className="mt-2 text-sm">
-                    Email: <span className="font-medium">tuyendung@ada.com</span>
+                    Email:{" "}
+                    <span className="font-medium">tuyendung@ada.com</span>
                   </p>
                   <p className="mt-1 text-sm">
-                    Điện thoại: <span className="font-medium">(+84) 123 456 789</span>
+                    Điện thoại:{" "}
+                    <span className="font-medium">(+84) 123 456 789</span>
                   </p>
                 </div>
               </div>
@@ -149,7 +135,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         </div>
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-gray-500">© 2023 Công ty ADA. Tất cả các quyền được bảo lưu.</p>
+        <p className="text-xs text-gray-500">
+          © 2023 Công ty ADA. Tất cả các quyền được bảo lưu.
+        </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4" href="#">
             Điều khoản dịch vụ
@@ -237,7 +225,7 @@ const allJobs = [
   {
     id: 3,
     title: "Quản lý sản phẩm",
-    location: "Hồ Chí Minh, Việt Nam",
+    location: "Hà Nội, Việt Nam",
     type: "Toàn thời gian",
     department: "Sản phẩm",
     salaryRange: "25 - 40 triệu VNĐ",

@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +17,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, MoreHorizontal, FileText, Calendar, Mail, Phone } from "lucide-react"
+import {
+  Search,
+  MoreHorizontal,
+  FileText,
+  Calendar,
+  Mail,
+  Phone,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default function ApplicantsPage() {
@@ -18,8 +32,12 @@ export default function ApplicantsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quản lý ứng viên</h1>
-          <p className="text-muted-foreground">Quản lý hồ sơ ứng viên và theo dõi tiến trình tuyển dụng.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Quản lý ứng viên
+          </h1>
+          <p className="text-muted-foreground">
+            Quản lý hồ sơ ứng viên và theo dõi tiến trình tuyển dụng.
+          </p>
         </div>
       </div>
 
@@ -31,7 +49,11 @@ export default function ApplicantsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Tìm kiếm ứng viên..." className="w-full pl-8" />
+              <Input
+                type="search"
+                placeholder="Tìm kiếm ứng viên..."
+                className="w-full pl-8"
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" size="sm">
@@ -56,7 +78,9 @@ export default function ApplicantsPage() {
               <TableBody>
                 {applicants.map((applicant) => (
                   <TableRow key={applicant.id}>
-                    <TableCell className="font-medium">{applicant.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {applicant.name}
+                    </TableCell>
                     <TableCell>{applicant.position}</TableCell>
                     <TableCell>
                       <div className="flex flex-col space-y-1">
@@ -75,10 +99,14 @@ export default function ApplicantsPage() {
                         variant="outline"
                         className={cn(
                           "border-none",
-                          applicant.status === "Phỏng vấn chuyên sâu" && "bg-blue-100 text-blue-800",
-                          applicant.status === "Không trực tuyến" && "bg-gray-100 text-gray-800",
-                          applicant.status === "Đã phỏng vấn" && "bg-green-100 text-green-800",
-                          applicant.status === "Từ chối" && "bg-red-100 text-red-800",
+                          applicant.status === "Chờ phỏng vấn" &&
+                            "bg-blue-100 text-blue-800",
+                          // applicant.status === "Không trực tuyến" &&
+                          //   "bg-gray-100 text-gray-800",
+                          applicant.status === "Trúng tuyển" &&
+                            "bg-green-100 text-green-800",
+                          applicant.status === "Từ chối" &&
+                            "bg-red-100 text-red-800"
                         )}
                       >
                         {applicant.status}
@@ -115,14 +143,14 @@ export default function ApplicantsPage() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2">
+          {/* <div className="flex items-center justify-end space-x-2">
             <Button variant="outline" size="sm">
               Trước
             </Button>
             <Button variant="outline" size="sm">
               Sau
             </Button>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
@@ -138,31 +166,23 @@ const applicants = [
   {
     id: 1,
     name: "Olivia Wilson",
-    position: "CMO",
+    position: "Quản lý sản phẩm",
     email: "olivia.wilson@example.com",
     phone: "0912 345 678",
-    status: "Phỏng vấn chuyên sâu",
-  },
-  {
-    id: 2,
-    name: "Trần Thị Trang",
-    position: "Intern",
-    email: "trang.tran@example.com",
-    phone: "0987 654 321",
-    status: "Không trực tuyến",
+    status: "Chờ phỏng vấn",
   },
   {
     id: 3,
     name: "Nguyễn Văn Minh",
-    position: "Senior Developer",
+    position: "Nhà thiết kế UX/UI",
     email: "minh.nguyen@example.com",
     phone: "0901 234 567",
-    status: "Đã phỏng vấn",
+    status: "Trúng tuyển",
   },
   {
     id: 4,
     name: "Lê Thị Hương",
-    position: "UX Designer",
+    position: "Kỹ sư phần mềm cao cấp",
     email: "huong.le@example.com",
     phone: "0976 543 210",
     status: "Từ chối",
@@ -170,17 +190,17 @@ const applicants = [
   {
     id: 5,
     name: "Phạm Văn Đức",
-    position: "Product Manager",
+    position: "Nhà thiết kế UX/UI",
     email: "duc.pham@example.com",
     phone: "0932 109 876",
-    status: "Phỏng vấn chuyên sâu",
+    status: "Chờ phỏng vấn",
   },
   {
     id: 6,
     name: "Hoàng Thị Mai",
-    position: "Marketing Specialist",
+    position: "Quản lý sản phẩm",
     email: "mai.hoang@example.com",
     phone: "0965 432 109",
-    status: "Không trực tuyến",
+    status: "Trúng tuyển",
   },
 ]

@@ -2,16 +2,32 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MapPin, Calendar, CheckCircle, XCircle } from "lucide-react"
 
 export default function EmployeeCheckinPage() {
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkedOut, setCheckedOut] = useState(false)
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString())
+  const [currentTime, setCurrentTime] = useState(
+    new Date().toLocaleTimeString()
+  )
   const [checkInTime, setCheckInTime] = useState("")
   const [checkOutTime, setCheckOutTime] = useState("")
 
@@ -32,7 +48,9 @@ export default function EmployeeCheckinPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Chấm công</h1>
-          <p className="text-muted-foreground">Chấm công hàng ngày và xem lịch sử chấm công.</p>
+          <p className="text-muted-foreground">
+            Chấm công hàng ngày và xem lịch sử chấm công.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -48,7 +66,12 @@ export default function EmployeeCheckinPage() {
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center space-y-6 py-6">
             <div className="text-center">
-              <div className="text-5xl font-bold tabular-nums">{currentTime}</div>
+              <div
+                className="text-5xl font-bold tabular-nums"
+                suppressHydrationWarning
+              >
+                {currentTime}
+              </div>
               <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>Văn phòng ADA - Hà Nội</span>
@@ -80,11 +103,15 @@ export default function EmployeeCheckinPage() {
             <div className="grid w-full grid-cols-2 gap-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Giờ vào:</p>
-                <p className="font-medium">{checkedIn ? checkInTime : "--:--:--"}</p>
+                <p className="font-medium">
+                  {checkedIn ? checkInTime : "--:--:--"}
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Giờ ra:</p>
-                <p className="font-medium">{checkedOut ? checkOutTime : "--:--:--"}</p>
+                <p className="font-medium">
+                  {checkedOut ? checkOutTime : "--:--:--"}
+                </p>
               </div>
             </div>
           </CardFooter>
@@ -120,7 +147,8 @@ export default function EmployeeCheckinPage() {
                 <span className="font-medium">Thông báo</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Bạn còn 8 ngày phép trong năm 2025. Hãy sử dụng hợp lý để đảm bảo cân bằng công việc và cuộc sống.
+                Bạn còn 8 ngày phép trong năm 2025. Hãy sử dụng hợp lý để đảm
+                bảo cân bằng công việc và cuộc sống.
               </p>
             </div>
           </CardContent>
@@ -153,7 +181,9 @@ export default function EmployeeCheckinPage() {
                   <TableBody>
                     {attendanceHistory.map((record) => (
                       <TableRow key={record.id}>
-                        <TableCell className="font-medium">{record.date}</TableCell>
+                        <TableCell className="font-medium">
+                          {record.date}
+                        </TableCell>
                         <TableCell>{record.checkIn}</TableCell>
                         <TableCell>{record.checkOut}</TableCell>
                         <TableCell>{record.totalHours}</TableCell>
@@ -162,9 +192,12 @@ export default function EmployeeCheckinPage() {
                             variant="outline"
                             className={cn(
                               "border-none",
-                              record.status === "Đúng giờ" && "bg-green-100 text-green-800",
-                              record.status === "Đi muộn" && "bg-amber-100 text-amber-800",
-                              record.status === "Nghỉ phép" && "bg-blue-100 text-blue-800",
+                              record.status === "Đúng giờ" &&
+                                "bg-green-100 text-green-800",
+                              record.status === "Đi muộn" &&
+                                "bg-amber-100 text-amber-800",
+                              record.status === "Nghỉ phép" &&
+                                "bg-blue-100 text-blue-800"
                             )}
                           >
                             {record.status}
@@ -178,7 +211,9 @@ export default function EmployeeCheckinPage() {
             </TabsContent>
             <TabsContent value="requests" className="space-y-4">
               <div className="flex justify-end">
-                <Button className="bg-[#3db87a] hover:bg-[#35a46c]">Tạo yêu cầu mới</Button>
+                <Button className="bg-[#3db87a] hover:bg-[#35a46c]">
+                  Tạo yêu cầu mới
+                </Button>
               </div>
               <div className="rounded-md border">
                 <Table>
@@ -194,7 +229,9 @@ export default function EmployeeCheckinPage() {
                   <TableBody>
                     {myRequests.map((request) => (
                       <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.type}</TableCell>
+                        <TableCell className="font-medium">
+                          {request.type}
+                        </TableCell>
                         <TableCell>{request.date}</TableCell>
                         <TableCell>{request.reason}</TableCell>
                         <TableCell>
@@ -202,9 +239,12 @@ export default function EmployeeCheckinPage() {
                             variant="outline"
                             className={cn(
                               "border-none",
-                              request.status === "Đã duyệt" && "bg-green-100 text-green-800",
-                              request.status === "Đang chờ" && "bg-amber-100 text-amber-800",
-                              request.status === "Từ chối" && "bg-red-100 text-red-800",
+                              request.status === "Đã duyệt" &&
+                                "bg-green-100 text-green-800",
+                              request.status === "Đang chờ" &&
+                                "bg-amber-100 text-amber-800",
+                              request.status === "Từ chối" &&
+                                "bg-red-100 text-red-800"
                             )}
                           >
                             {request.status}

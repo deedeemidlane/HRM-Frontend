@@ -2,7 +2,14 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, MoreHorizontal, FileEdit, Eye, CheckCircle, Plus } from "lucide-react"
+import {
+  Search,
+  MoreHorizontal,
+  FileEdit,
+  Eye,
+  CheckCircle,
+  Plus,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default function InterviewsPage() {
@@ -20,11 +34,13 @@ export default function InterviewsPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Lịch phỏng vấn</h1>
-          <p className="text-muted-foreground">Quản lý lịch phỏng vấn và theo dõi tiến trình.</p>
+          <p className="text-muted-foreground">
+            Quản lý lịch phỏng vấn và theo dõi tiến trình.
+          </p>
         </div>
         <Button className="bg-[#3db87a] hover:bg-[#35a46c]" asChild>
           <Link href="/dashboard/recruitment/interviews/create">
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="h-4 w-4" />
             Tạo lịch phỏng vấn
           </Link>
         </Button>
@@ -38,7 +54,11 @@ export default function InterviewsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Tìm kiếm lịch phỏng vấn..." className="w-full pl-8" />
+              <Input
+                type="search"
+                placeholder="Tìm kiếm lịch phỏng vấn..."
+                className="w-full pl-8"
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" size="sm">
@@ -56,7 +76,7 @@ export default function InterviewsPage() {
                   <TableHead>Tên lịch phỏng vấn</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Ngày phỏng vấn</TableHead>
-                  <TableHead>Vòng phỏng vấn</TableHead>
+                  {/* <TableHead>Vòng phỏng vấn</TableHead> */}
                   <TableHead>Trạng thái</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
@@ -64,18 +84,23 @@ export default function InterviewsPage() {
               <TableBody>
                 {interviews.map((interview) => (
                   <TableRow key={interview.id}>
-                    <TableCell className="font-medium">{interview.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {interview.name}
+                    </TableCell>
                     <TableCell>{interview.time}</TableCell>
                     <TableCell>{interview.date}</TableCell>
-                    <TableCell>{interview.round}</TableCell>
+                    {/* <TableCell>{interview.round}</TableCell> */}
                     <TableCell>
                       <Badge
                         variant="outline"
                         className={cn(
                           "border-none",
-                          interview.status === "Đã kết thúc" && "bg-green-100 text-green-800",
-                          interview.status === "Chưa xác nhận" && "bg-yellow-100 text-yellow-800",
-                          interview.status === "Đã lên lịch" && "bg-blue-100 text-blue-800",
+                          interview.status === "Đã kết thúc" &&
+                            "bg-green-100 text-green-800",
+                          interview.status === "Chưa xác nhận" &&
+                            "bg-yellow-100 text-yellow-800",
+                          interview.status === "Đã lên lịch" &&
+                            "bg-blue-100 text-blue-800"
                         )}
                       >
                         {interview.status}
@@ -112,14 +137,14 @@ export default function InterviewsPage() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2">
+          {/* <div className="flex items-center justify-end space-x-2">
             <Button variant="outline" size="sm">
               Trước
             </Button>
             <Button variant="outline" size="sm">
               Sau
             </Button>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
@@ -134,7 +159,7 @@ const cn = (...classes: any[]) => {
 const interviews = [
   {
     id: 1,
-    name: "Phỏng vấn ASP.Net",
+    name: "Phỏng vấn Dev",
     time: "10:00 - 11:30",
     date: "25/04/2023",
     round: "Phỏng vấn chuyên sâu",
@@ -142,7 +167,7 @@ const interviews = [
   },
   {
     id: 2,
-    name: "Phỏng vấn Ruby",
+    name: "Phỏng vấn PM",
     time: "14:00 - 15:30",
     date: "26/04/2023",
     round: "Phỏng vấn doanh nghiệp",
@@ -150,23 +175,23 @@ const interviews = [
   },
   {
     id: 3,
-    name: "Phỏng vấn HR",
+    name: "Phỏng vấn UX/UI",
     time: "09:00 - 10:00",
     date: "27/04/2023",
     round: "Phỏng vấn sơ loại",
     status: "Đã lên lịch",
   },
-  {
-    id: 4,
-    name: "Phỏng vấn Full-stack",
-    time: "13:30 - 15:00",
-    date: "28/04/2023",
-    round: "Phỏng vấn kỹ thuật",
-    status: "Đã lên lịch",
-  },
+  // {
+  //   id: 4,
+  //   name: "Phỏng vấn Full-stack",
+  //   time: "13:30 - 15:00",
+  //   date: "28/04/2023",
+  //   round: "Phỏng vấn kỹ thuật",
+  //   status: "Đã lên lịch",
+  // },
   {
     id: 5,
-    name: "Phỏng vấn Android",
+    name: "Phỏng vấn PM",
     time: "11:00 - 12:30",
     date: "29/04/2023",
     round: "Phỏng vấn chuyên sâu",

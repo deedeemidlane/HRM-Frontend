@@ -1,4 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +29,9 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Tổng quan về hoạt động nhân sự của công ty.</p>
+          <p className="text-muted-foreground">
+            Tổng quan về hoạt động nhân sự của công ty.
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -38,7 +48,9 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng số nhân viên</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tổng số nhân viên
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -80,7 +92,9 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tỷ lệ nghỉ phép</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tỷ lệ nghỉ phép
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -106,7 +120,9 @@ export default function DashboardPage() {
             <Card className="lg:col-span-4">
               <CardHeader>
                 <CardTitle>Phân bố nhân sự theo phòng ban</CardTitle>
-                <CardDescription>Số lượng nhân viên trong mỗi phòng ban</CardDescription>
+                <CardDescription>
+                  Số lượng nhân viên trong mỗi phòng ban
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-[300px] flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
@@ -118,21 +134,31 @@ export default function DashboardPage() {
             <Card className="lg:col-span-3">
               <CardHeader>
                 <CardTitle>Đơn từ cần xử lý</CardTitle>
-                <CardDescription>Đơn nghỉ phép, OT, điều chỉnh công</CardDescription>
+                <CardDescription>
+                  Đơn nghỉ phép, OT, điều chỉnh công
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {pendingRequests.map((request, index) => (
-                    <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between border-b pb-2 last:border-0"
+                    >
                       <div>
                         <p className="font-medium">{request.name}</p>
-                        <p className="text-sm text-muted-foreground">{request.type}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {request.type}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm">
                           Từ chối
                         </Button>
-                        <Button size="sm" className="bg-[#3db87a] hover:bg-[#35a46c]">
+                        <Button
+                          size="sm"
+                          className="bg-[#3db87a] hover:bg-[#35a46c]"
+                        >
                           Duyệt
                         </Button>
                       </div>
@@ -147,27 +173,37 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tin tuyển dụng</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tin tuyển dụng
+                </CardTitle>
                 <Briefcase className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">4 tin đang hoạt động</p>
+                <p className="text-xs text-muted-foreground">
+                  4 tin đang hoạt động
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Ứng viên mới</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Ứng viên mới
+                </CardTitle>
                 <UserPlus className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">28</div>
-                <p className="text-xs text-muted-foreground">Trong 7 ngày qua</p>
+                <p className="text-xs text-muted-foreground">
+                  Trong 7 ngày qua
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Lịch phỏng vấn</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Lịch phỏng vấn
+                </CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -181,7 +217,9 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tỷ lệ đi làm</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tỷ lệ đi làm
+                </CardTitle>
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -215,7 +253,9 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Hiệu suất trung bình</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Hiệu suất trung bình
+                </CardTitle>
                 <BarChart2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -225,7 +265,9 @@ export default function DashboardPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Đánh giá hoàn thành</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Đánh giá hoàn thành
+                </CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -235,7 +277,9 @@ export default function DashboardPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Đề xuất tăng lương</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Đề xuất tăng lương
+                </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -251,19 +295,28 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Lịch phỏng vấn sắp tới</CardTitle>
-            <CardDescription>Các buổi phỏng vấn trong 7 ngày tới</CardDescription>
+            <CardDescription>
+              Các buổi phỏng vấn trong 7 ngày tới
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {upcomingInterviews.map((interview, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
+                <div
+                  key={index}
+                  className="flex items-center justify-between border-b pb-2 last:border-0"
+                >
                   <div>
                     <p className="font-medium">{interview.position}</p>
-                    <p className="text-sm text-muted-foreground">{interview.candidate}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {interview.candidate}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">{interview.date}</p>
-                    <p className="text-sm text-muted-foreground">{interview.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {interview.time}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -273,17 +326,30 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Thông báo gần đây</CardTitle>
-            <CardDescription>Các thông báo và cập nhật từ công ty</CardDescription>
+            <CardDescription>
+              Các thông báo và cập nhật từ công ty
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentNotifications.map((notification, index) => (
-                <div key={index} className="flex items-start gap-4 border-b pb-2 last:border-0">
-                  <div className={`mt-0.5 rounded-full p-1 ${notification.iconBg}`}>{notification.icon}</div>
+                <div
+                  key={index}
+                  className="flex items-start gap-4 border-b pb-2 last:border-0"
+                >
+                  <div
+                    className={`mt-0.5 rounded-full p-1 ${notification.iconBg}`}
+                  >
+                    {notification.icon}
+                  </div>
                   <div>
                     <p className="font-medium">{notification.title}</p>
-                    <p className="text-sm text-muted-foreground">{notification.description}</p>
-                    <p className="text-xs text-muted-foreground">{notification.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {notification.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {notification.time}
+                    </p>
                   </div>
                 </div>
               ))}

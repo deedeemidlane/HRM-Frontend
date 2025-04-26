@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,11 +38,15 @@ export default function ContractsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quản lý hợp đồng</h1>
-          <p className="text-muted-foreground">Quản lý hợp đồng lao động của nhân viên.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Quản lý hợp đồng
+          </h1>
+          <p className="text-muted-foreground">
+            Quản lý hợp đồng lao động của nhân viên.
+          </p>
         </div>
         <Button className="bg-[#3db87a] hover:bg-[#35a46c]">
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="h-4 w-4" />
           Tạo hợp đồng mới
         </Button>
       </div>
@@ -43,7 +54,9 @@ export default function ContractsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng số hợp đồng</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tổng số hợp đồng
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -52,12 +65,16 @@ export default function ContractsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hợp đồng hiện hành</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Hợp đồng hiện hành
+            </CardTitle>
             <FileText className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">135</div>
-            <p className="text-xs text-muted-foreground">95% tổng số hợp đồng</p>
+            <p className="text-xs text-muted-foreground">
+              95% tổng số hợp đồng
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -77,7 +94,9 @@ export default function ContractsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">Cần gia hạn hoặc chấm dứt</p>
+            <p className="text-xs text-muted-foreground">
+              Cần gia hạn hoặc chấm dứt
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -90,7 +109,11 @@ export default function ContractsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Tìm kiếm hợp đồng..." className="w-full pl-8" />
+              <Input
+                type="search"
+                placeholder="Tìm kiếm hợp đồng..."
+                className="w-full pl-8"
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" size="sm">
@@ -119,7 +142,9 @@ export default function ContractsPage() {
               <TableBody>
                 {contracts.map((contract) => (
                   <TableRow key={contract.id}>
-                    <TableCell className="font-medium">{contract.code}</TableCell>
+                    <TableCell className="font-medium">
+                      {contract.code}
+                    </TableCell>
                     <TableCell>{contract.employee}</TableCell>
                     <TableCell>{contract.type}</TableCell>
                     <TableCell>{contract.startDate}</TableCell>
@@ -129,10 +154,14 @@ export default function ContractsPage() {
                         variant="outline"
                         className={cn(
                           "border-none",
-                          contract.status === "Hiện hành" && "bg-green-100 text-green-800",
-                          contract.status === "Sắp hết hạn" && "bg-amber-100 text-amber-800",
-                          contract.status === "Đã hết hạn" && "bg-red-100 text-red-800",
-                          contract.status === "Đã chấm dứt" && "bg-gray-100 text-gray-800",
+                          contract.status === "Hiện hành" &&
+                            "bg-green-100 text-green-800",
+                          contract.status === "Sắp hết hạn" &&
+                            "bg-amber-100 text-amber-800",
+                          contract.status === "Đã hết hạn" &&
+                            "bg-red-100 text-red-800",
+                          contract.status === "Đã chấm dứt" &&
+                            "bg-gray-100 text-gray-800"
                         )}
                       >
                         {contract.status}

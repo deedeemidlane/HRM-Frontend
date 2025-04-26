@@ -34,7 +34,9 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
@@ -72,9 +74,11 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-[#3db87a] hover:bg-[#35a46c]">Ứng tuyển ngay</Button>
+        <Button className="w-full bg-[#3db87a] hover:bg-[#35a46c]">
+          Ứng tuyển ngay
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         {success ? (
           <div className="py-6 text-center">
             <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -85,12 +89,18 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
             <DialogTitle className="text-xl">Ứng tuyển thành công!</DialogTitle>
             <DialogDescription className="mt-2">
-              Chúng tôi đã nhận được hồ sơ ứng tuyển của bạn. Chúng tôi sẽ liên hệ với bạn sớm nhất có thể.
+              Chúng tôi đã nhận được hồ sơ ứng tuyển của bạn. Chúng tôi sẽ liên
+              hệ với bạn sớm nhất có thể.
             </DialogDescription>
           </div>
         ) : (
@@ -98,7 +108,8 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
             <DialogHeader>
               <DialogTitle>Ứng tuyển vị trí {jobTitle}</DialogTitle>
               <DialogDescription>
-                Vui lòng điền đầy đủ thông tin bên dưới để ứng tuyển. Chúng tôi sẽ liên hệ với bạn sớm nhất có thể.
+                Vui lòng điền đầy đủ thông tin bên dưới để ứng tuyển. Chúng tôi
+                sẽ liên hệ với bạn sớm nhất có thể.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -154,7 +165,9 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
                   required
                   className="cursor-pointer"
                 />
-                <p className="text-xs text-muted-foreground">Chấp nhận file PDF, DOC hoặc DOCX (tối đa 5MB)</p>
+                <p className="text-xs text-muted-foreground">
+                  Chấp nhận file PDF, DOC hoặc DOCX (tối đa 5MB)
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="coverLetter">Thư xin việc</Label>
@@ -168,10 +181,19 @@ export function JobApplicationModal({ jobTitle }: JobApplicationModalProps) {
                 />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Hủy
                 </Button>
-                <Button type="submit" className="bg-[#3db87a] hover:bg-[#35a46c]" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="bg-[#3db87a] hover:bg-[#35a46c]"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
