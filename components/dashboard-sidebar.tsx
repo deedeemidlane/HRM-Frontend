@@ -27,6 +27,21 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
+const PERSONAL_TABS = [
+  "/dashboard/checkin",
+  "/dashboard/profile",
+  "/dashboard/requests",
+  "/dashboard/salary",
+]
+
+const HR_TABS = [
+  "/dashboard/employees",
+  "/dashboard/contracts",
+  "/dashboard/attendance",
+  "/dashboard/payroll",
+  "/dashboard/reports",
+]
+
 interface SidebarItemProps {
   icon: React.ReactNode
   label: string
@@ -34,7 +49,7 @@ interface SidebarItemProps {
   isActive?: boolean
   children?: React.ReactNode
   onClick?: () => void
-  role?: string[]
+  open?: boolean
 }
 
 const SidebarItem = ({
@@ -44,9 +59,9 @@ const SidebarItem = ({
   isActive,
   children,
   onClick,
-  role,
+  open = false,
 }: SidebarItemProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(open)
   const hasChildren = Boolean(children)
 
   const handleClick = () => {
@@ -61,7 +76,7 @@ const SidebarItem = ({
   const content = (
     <>
       <div className="mr-2">{icon}</div>
-      <span className="flex-1 text-left">{label}</span>
+      <span className="flex-1 text-left mt-0.5">{label}</span>
       {hasChildren && (
         <ChevronDown
           className={cn(
@@ -91,7 +106,7 @@ const SidebarItem = ({
         <Button
           variant="ghost"
           className={cn(
-            "flex w-full justify-start px-3 py-2 text-sm font-medium",
+            "flex w-full justify-start px-3 py-2 text-sm font-medium gap-0",
             isOpen ? "bg-gray-100" : ""
           )}
           onClick={handleClick}
@@ -108,7 +123,7 @@ const SidebarItem = ({
   )
 }
 
-export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
+export function DashboardSidebar({ userRole }: { userRole?: string }) {
   const pathname = usePathname()
 
   return (
@@ -121,25 +136,26 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
       </div>
       <div className="flex-1 overflow-auto py-4">
         <nav className="grid gap-1 px-2">
-          <SidebarItem
-            icon={<BarChart2 className="h-5 w-5" />}
+          {/* <SidebarItem
+            icon={<BarChart2 className="h-4 w-4" />}
             label="Dashboard"
             href="/dashboard"
             isActive={pathname === "/dashboard"}
-            role={["admin", "hr", "manager"]}
-          />
+            role={["ROLE_ADMIN", "ROLE_HR", "ROLE_MANAGER"]}
+          /> */}
 
           {/* Admin Features */}
-          {userRole === "admin" && (
+          {userRole === "ROLE_ADMIN" && (
             <SidebarItem
               icon={<Shield className="h-5 w-5" />}
               label="Quản trị hệ thống"
+              open={pathname.includes("/dashboard/admin")}
             >
               <SidebarItem
                 icon={<UserCog className="h-4 w-4" />}
                 label="Quản lý tài khoản"
                 href="/dashboard/admin/users"
-                isActive={pathname === "/dashboard/admin/users"}
+                isActive={pathname.includes("/dashboard/admin/users")}
               />
               <SidebarItem
                 icon={<Shield className="h-4 w-4" />}
@@ -151,17 +167,18 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
           )}
 
           {/* HR Features */}
-          {(userRole === "admin" || userRole === "hr") && (
+          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_HR") && (
             <SidebarItem
               icon={<Users className="h-5 w-5" />}
               label="Quản lý nhân sự"
+              open={HR_TABS.includes(pathname)}
             >
-              <SidebarItem
+              {/* <SidebarItem
                 icon={<Users className="h-4 w-4" />}
                 label="Danh sách nhân viên"
                 href="/dashboard/employees"
                 isActive={pathname === "/dashboard/employees"}
-              />
+              /> */}
               <SidebarItem
                 icon={<FileContract className="h-4 w-4" />}
                 label="Quản lý hợp đồng"
@@ -190,10 +207,11 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
           )}
 
           {/* Recruitment Features */}
-          {(userRole === "admin" || userRole === "hr") && (
+          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_HR") && (
             <SidebarItem
               icon={<Briefcase className="h-5 w-5" />}
               label="Tuyển dụng"
+              open={pathname.includes("/dashboard/recruitment")}
             >
               <SidebarItem
                 icon={<FileText className="h-4 w-4" />}
@@ -222,7 +240,7 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
           )}
 
           {/* Manager Features */}
-          {(userRole === "admin" || userRole === "manager") && (
+          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
             <SidebarItem
               icon={<CheckSquare className="h-5 w-5" />}
               label="Quản lý bộ phận"
@@ -249,17 +267,15 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
           )}
 
           {/* Employee Features */}
-          {(userRole === "admin" ||
-            userRole === "hr" ||
-            userRole === "manager" ||
-            userRole === "employee") && (
-            <SidebarItem icon={<UserCog className="h-5 w-5" />} label="Cá nhân">
-              <SidebarItem
-                icon={<Users className="h-4 w-4" />}
-                label="Thông tin cá nhân"
-                href="/dashboard/profile"
-                isActive={pathname === "/dashboard/profile"}
-              />
+          {(userRole === "ROLE_HR" ||
+            // userRole === "ROLE_ADMIN" ||
+            userRole === "ROLE_MANAGER" ||
+            userRole === "ROLE_USER") && (
+            <SidebarItem
+              icon={<UserCog className="h-5 w-5" />}
+              label="Cá nhân"
+              open={PERSONAL_TABS.includes(pathname)}
+            >
               <SidebarItem
                 icon={<Clock className="h-4 w-4" />}
                 label="Chấm công"
@@ -278,18 +294,24 @@ export function DashboardSidebar({ userRole = "hr" }: { userRole?: string }) {
                 href="/dashboard/salary"
                 isActive={pathname === "/dashboard/salary"}
               />
+              <SidebarItem
+                icon={<Users className="h-4 w-4" />}
+                label="Thông tin cá nhân"
+                href="/dashboard/profile"
+                isActive={pathname === "/dashboard/profile"}
+              />
             </SidebarItem>
           )}
 
           {/* Common Features */}
           <SidebarItem
-            icon={<Bell className="h-5 w-5" />}
+            icon={<Bell className="h-4 w-4" />}
             label="Thông báo"
             href="/dashboard/notifications"
             isActive={pathname === "/dashboard/notifications"}
           />
           <SidebarItem
-            icon={<Settings className="h-5 w-5" />}
+            icon={<Settings className="h-4 w-4" />}
             label="Cài đặt"
             href="/dashboard/settings"
             isActive={pathname === "/dashboard/settings"}

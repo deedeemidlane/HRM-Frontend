@@ -1,12 +1,13 @@
 import { useState } from "react"
 
-const useGetEmployee = () => {
+const useGetAllEmployees = () => {
   const [loading, setLoading] = useState(false)
 
-  const getEmployee = async (employeeId: number) => {
+  const getAllEmployees = async (searchKey: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees/${employeeId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees/search?active=true&sort=id,asc&keyword=${searchKey}`,
+        // `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees/search?active=true&sort=id,asc`,
         {
           method: "GET",
           headers: {
@@ -22,6 +23,8 @@ const useGetEmployee = () => {
         throw new Error(result.message || "Thất bại")
       }
 
+      console.log("All employees: ", result.data)
+
       return result.data
     } catch (error) {
       console.error(error)
@@ -30,6 +33,6 @@ const useGetEmployee = () => {
     }
   }
 
-  return { loading, getEmployee }
+  return { loading, getAllEmployees }
 }
-export default useGetEmployee
+export default useGetAllEmployees

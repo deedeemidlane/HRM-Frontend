@@ -34,8 +34,10 @@ export function HomeHeader({
           className="text-sm font-medium hover:underline underline-offset-4"
           href="/"
           onClick={(e) => {
-            e.preventDefault()
-            window.scrollTo({ top: 0, behavior: "smooth" })
+            if (aboutRef) {
+              e.preventDefault()
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }
           }}
         >
           Trang chủ

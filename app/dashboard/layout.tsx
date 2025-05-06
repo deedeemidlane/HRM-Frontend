@@ -17,6 +17,7 @@ import { Bell, User, Settings, LogOut, Menu, ChevronDown } from "lucide-react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import useLogout from "@/hooks/authentication/useLogout"
 import { DialogTitle } from "@radix-ui/react-dialog"
+import { useUserContext } from "@/contexts/UserContext"
 
 export default function DashboardLayout({
   children,
@@ -32,11 +33,13 @@ export default function DashboardLayout({
     router.push("/login")
   }
 
+  const { user } = useUserContext()
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <DashboardSidebar userRole="hr" />
+        <DashboardSidebar userRole={user?.roles[0].name} />
       </div>
 
       {/* Mobile Sidebar */}
@@ -53,7 +56,7 @@ export default function DashboardLayout({
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-fit">
           <DialogTitle></DialogTitle>
-          <DashboardSidebar />
+          <DashboardSidebar userRole={user?.roles[0].name} />
         </SheetContent>
       </Sheet>
 
@@ -62,38 +65,38 @@ export default function DashboardLayout({
           <div className="ml-auto flex items-center gap-4">
             <Button variant="outline" size="icon" className="relative">
               <Bell className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#3db87a] text-[10px] font-bold text-white">
+              {/* <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#3db87a] text-[10px] font-bold text-white">
                 3
-              </span>
+              </span> */}
               <span className="sr-only">Notifications</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt="User" />
+                <Button variant="outline">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src="/placeholder-user.png" alt="User" />
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                   {/* <div className="hidden flex-col items-start text-sm md:flex">
-                    <span>John Doe</span>
+                    <span>{user?.fullName}</span>
                     <span className="text-xs text-muted-foreground">
-                      HR Manager
+                      {user?.position}
                     </span>
                   </div> */}
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuLabel>{user?.fullName}</DropdownMenuLabel>
+                {/* <DropdownMenuSeparator /> */}
+                {/* <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />

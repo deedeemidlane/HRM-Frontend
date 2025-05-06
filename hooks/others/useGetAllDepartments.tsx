@@ -1,12 +1,12 @@
 import { useState } from "react"
 
-const useGetEmployee = () => {
+const useGetAllDepartments = () => {
   const [loading, setLoading] = useState(false)
 
-  const getEmployee = async (employeeId: number) => {
+  const getAllDepartments = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees/${employeeId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/department/all`,
         {
           method: "GET",
           headers: {
@@ -22,6 +22,8 @@ const useGetEmployee = () => {
         throw new Error(result.message || "Thất bại")
       }
 
+      console.log("All departments: ", result.data)
+
       return result.data
     } catch (error) {
       console.error(error)
@@ -30,6 +32,6 @@ const useGetEmployee = () => {
     }
   }
 
-  return { loading, getEmployee }
+  return { loading, getAllDepartments }
 }
-export default useGetEmployee
+export default useGetAllDepartments
