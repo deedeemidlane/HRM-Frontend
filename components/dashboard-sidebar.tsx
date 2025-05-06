@@ -42,6 +42,12 @@ const HR_TABS = [
   "/dashboard/reports",
 ]
 
+const MANAGER_TABS = [
+  "/dashboard/manager/approvals",
+  "/dashboard/manager/performance",
+  "/dashboard/manager/reviews",
+]
+
 interface SidebarItemProps {
   icon: React.ReactNode
   label: string
@@ -166,8 +172,38 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
             </SidebarItem>
           )}
 
+          {/* Manager Features */}
+          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
+            <SidebarItem
+              icon={<CheckSquare className="h-5 w-5" />}
+              label="Quản lý bộ phận"
+              open={MANAGER_TABS.includes(pathname)}
+            >
+              <SidebarItem
+                icon={<Clock className="h-4 w-4" />}
+                label="Duyệt đơn nghỉ phép/OT"
+                href="/dashboard/manager/approvals"
+                isActive={pathname === "/dashboard/manager/approvals"}
+              />
+              <SidebarItem
+                icon={<BarChart2 className="h-4 w-4" />}
+                label="Hiệu suất nhân viên"
+                href="/dashboard/manager/performance"
+                isActive={pathname === "/dashboard/manager/performance"}
+              />
+              <SidebarItem
+                icon={<Award className="h-4 w-4" />}
+                label="Đánh giá nhân viên"
+                href="/dashboard/manager/reviews"
+                isActive={pathname === "/dashboard/manager/reviews"}
+              />
+            </SidebarItem>
+          )}
+
           {/* HR Features */}
-          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_HR") && (
+          {(userRole === "ROLE_ADMIN" ||
+            userRole === "ROLE_HR" ||
+            userRole === "ROLE_MANAGER") && (
             <SidebarItem
               icon={<Users className="h-5 w-5" />}
               label="Quản lý nhân sự"
@@ -180,17 +216,18 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
                 isActive={pathname === "/dashboard/employees"}
               /> */}
               <SidebarItem
+                icon={<ClipboardList className="h-4 w-4" />}
+                label="Quản lý chấm công"
+                href="/dashboard/attendance"
+                isActive={pathname === "/dashboard/attendance"}
+              />
+              <SidebarItem
                 icon={<FileContract className="h-4 w-4" />}
                 label="Quản lý hợp đồng"
                 href="/dashboard/contracts"
                 isActive={pathname === "/dashboard/contracts"}
               />
-              <SidebarItem
-                icon={<ClipboardList className="h-4 w-4" />}
-                label="Chấm công"
-                href="/dashboard/attendance"
-                isActive={pathname === "/dashboard/attendance"}
-              />
+
               <SidebarItem
                 icon={<DollarSign className="h-4 w-4" />}
                 label="Lương & Phúc lợi"
@@ -207,7 +244,9 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
           )}
 
           {/* Recruitment Features */}
-          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_HR") && (
+          {(userRole === "ROLE_ADMIN" ||
+            userRole === "ROLE_HR" ||
+            userRole === "ROLE_MANAGER") && (
             <SidebarItem
               icon={<Briefcase className="h-5 w-5" />}
               label="Tuyển dụng"
@@ -239,36 +278,8 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
             </SidebarItem>
           )}
 
-          {/* Manager Features */}
-          {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
-            <SidebarItem
-              icon={<CheckSquare className="h-5 w-5" />}
-              label="Quản lý bộ phận"
-            >
-              <SidebarItem
-                icon={<Clock className="h-4 w-4" />}
-                label="Duyệt đơn nghỉ phép/OT"
-                href="/dashboard/manager/approvals"
-                isActive={pathname === "/dashboard/manager/approvals"}
-              />
-              <SidebarItem
-                icon={<BarChart2 className="h-4 w-4" />}
-                label="Hiệu suất nhân viên"
-                href="/dashboard/manager/performance"
-                isActive={pathname === "/dashboard/manager/performance"}
-              />
-              <SidebarItem
-                icon={<Award className="h-4 w-4" />}
-                label="Đánh giá nhân viên"
-                href="/dashboard/manager/reviews"
-                isActive={pathname === "/dashboard/manager/reviews"}
-              />
-            </SidebarItem>
-          )}
-
           {/* Employee Features */}
           {(userRole === "ROLE_HR" ||
-            // userRole === "ROLE_ADMIN" ||
             userRole === "ROLE_MANAGER" ||
             userRole === "ROLE_USER") && (
             <SidebarItem

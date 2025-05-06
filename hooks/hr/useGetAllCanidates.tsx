@@ -1,12 +1,19 @@
 import { useState } from "react"
 
-const useGetAllEmployees = () => {
+const useGetAllCandidates = () => {
   const [loading, setLoading] = useState(false)
 
-  const getAllEmployees = async (searchKey: string) => {
+  const getAllCandidates = async (
+    searchKey: string,
+    hasInterview?: boolean
+  ) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees/search?active=true&sort=id,asc&keyword=${searchKey}`,
+        `${
+          process.env.NEXT_PUBLIC_API_BASE_URL
+        }/api/candidates/search?sort=id,asc&keyword=${searchKey}${
+          hasInterview !== undefined ? `&hasInterview=${hasInterview}` : ""
+        }`,
         {
           method: "GET",
           headers: {
@@ -22,7 +29,7 @@ const useGetAllEmployees = () => {
         throw new Error(result.message || "Thất bại")
       }
 
-      console.log("All employees: ", result.data)
+      console.log("All candidates: ", result.data)
 
       return result.data
     } catch (error) {
@@ -32,6 +39,6 @@ const useGetAllEmployees = () => {
     }
   }
 
-  return { loading, getAllEmployees }
+  return { loading, getAllCandidates }
 }
-export default useGetAllEmployees
+export default useGetAllCandidates

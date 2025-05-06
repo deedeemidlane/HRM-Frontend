@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,10 +27,25 @@ import {
   Eye,
   CheckCircle,
   Plus,
+  Trash2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react"
+import useGetAllInterviews from "@/hooks/hr/useGetAllInterviews"
+import { IInterview } from "@/types/Interview"
 
 export default function InterviewsPage() {
+  const [interviews, setInterviews] = useState<IInterview[]>([])
+  const { getAllInterviews } = useGetAllInterviews()
+
+  useEffect(() => {
+    const fetchInterviews = async () => {
+      const fetchedInterviews = await getAllInterviews()
+      if (fetchedInterviews) setInterviews(fetchedInterviews)
+    }
+    fetchInterviews()
+  }, [])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -47,11 +64,11 @@ export default function InterviewsPage() {
       </div>
 
       <Card>
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle>Danh sách lịch phỏng vấn</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        </CardHeader> */}
+        <CardContent className="space-y-4 pt-6">
+          {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -68,29 +85,31 @@ export default function InterviewsPage() {
                 Lọc
               </Button>
             </div>
-          </div>
+          </div> */}
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>ID</TableHead>
                   <TableHead>Tên lịch phỏng vấn</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Ngày phỏng vấn</TableHead>
                   {/* <TableHead>Vòng phỏng vấn</TableHead> */}
-                  <TableHead>Trạng thái</TableHead>
+                  {/* <TableHead>Trạng thái</TableHead> */}
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {interviews.map((interview) => (
                   <TableRow key={interview.id}>
+                    <TableCell>{interview.id}</TableCell>
                     <TableCell className="font-medium">
-                      {interview.name}
+                      {interview.title}
                     </TableCell>
                     <TableCell>{interview.time}</TableCell>
                     <TableCell>{interview.date}</TableCell>
                     {/* <TableCell>{interview.round}</TableCell> */}
-                    <TableCell>
+                    {/* <TableCell>
                       <Badge
                         variant="outline"
                         className={cn(
@@ -105,7 +124,7 @@ export default function InterviewsPage() {
                       >
                         {interview.status}
                       </Badge>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -117,17 +136,26 @@ export default function InterviewsPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          {/* <DropdownMenuItem>
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
-                          </DropdownMenuItem>
+                          </DropdownMenuItem> */}
                           <DropdownMenuItem>
-                            <FileEdit className="mr-2 h-4 w-4" />
+                            <FileEdit className="mb-0.5 h-4 w-4" />
                             Chỉnh sửa
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Cập nhật trạng thái
+                          <DropdownMenuItem className="p-0">
+                            <Button
+                              variant={"ghost"}
+                              className="text-red-600 hover:text-red-600 p-2 w-full justify-start"
+                              onClick={() => {
+                                // setSelectedEmployee(employee)
+                                // setOpenConfirmDeleteModal(true)
+                              }}
+                            >
+                              <Trash2 className="mb-0.5 h-4 w-4" />
+                              Xóa
+                            </Button>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

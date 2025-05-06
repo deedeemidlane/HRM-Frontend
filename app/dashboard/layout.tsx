@@ -18,6 +18,9 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import useLogout from "@/hooks/authentication/useLogout"
 import { DialogTitle } from "@radix-ui/react-dialog"
 import { useUserContext } from "@/contexts/UserContext"
+import { IRole } from "@/types/User"
+import { hasRole } from "@/utils/checkRole"
+import { useMemo } from "react"
 
 export default function DashboardLayout({
   children,
@@ -35,11 +38,19 @@ export default function DashboardLayout({
 
   const { user } = useUserContext()
 
+  const role = useMemo(() => {
+    if (!user) return "ROLE_USER"
+    if (hasRole("ROLE_ADMIN", user.roles)) return "ROLE_ADMIN"
+    if (hasRole("ROLE_MANAGER", user.roles)) return "ROLE_MANAGER"
+    if (user.departmentName === "Human Resources") return "ROLE_HR"
+    return "ROLE_USER"
+  }, [user])
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <DashboardSidebar userRole={user?.roles[0].name} />
+        <DashboardSidebar userRole={role} />
       </div>
 
       {/* Mobile Sidebar */}
@@ -56,7 +67,7 @@ export default function DashboardLayout({
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-fit">
           <DialogTitle></DialogTitle>
-          <DashboardSidebar userRole={user?.roles[0].name} />
+          <DashboardSidebar userRole={role} />
         </SheetContent>
       </Sheet>
 

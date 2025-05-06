@@ -2,22 +2,22 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 
-const useCreateEmployee = () => {
+const useCreateJob = () => {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  const createEmployee = async (employeeData: {}) => {
+  const createJob = async (jobData: {}) => {
     setLoading(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employees`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/jobs`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify(employeeData),
+          body: JSON.stringify(jobData),
         }
       )
 
@@ -30,9 +30,9 @@ const useCreateEmployee = () => {
 
       toast.success(result.message)
 
-      router.push("/dashboard/admin/users")
+      router.push("/dashboard/recruitment")
     } catch (error: any) {
-      console.error("Error in useCreateEmployee:", error)
+      console.error("Error in useCreateJob:", error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
@@ -43,6 +43,6 @@ const useCreateEmployee = () => {
     }
   }
 
-  return { loading, createEmployee }
+  return { loading, createJob }
 }
-export default useCreateEmployee
+export default useCreateJob

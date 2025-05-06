@@ -3,6 +3,7 @@ export interface IUser {
   fullName: string
   email: string
   position: string
+  departmentName: string
   roles: IRole[]
 }
 

@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,10 +26,34 @@ import {
   Calendar,
   Mail,
   Phone,
+  Filter,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react"
+import useGetAllCandidates from "@/hooks/hr/useGetAllCanidates"
+import useDebounce from "@/hooks/use-debounce"
+import { ICandidate } from "@/types/Candidate"
+import useGetCV from "@/hooks/hr/useGetCV"
 
 export default function ApplicantsPage() {
+  const [candidates, setCandidates] = useState<ICandidate[]>([])
+  const { getAllCandidates } = useGetAllCandidates()
+
+  const [toggleReRender, setToggleReRender] = useState(false)
+
+  const [searchKey, setSearchKey] = useState("")
+  const debouncedSearchKey = useDebounce(searchKey, 300)
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      const fetchedCandidates = await getAllCandidates(debouncedSearchKey)
+      if (fetchedCandidates) setCandidates(fetchedCandidates)
+    }
+    fetchCandidates()
+  }, [toggleReRender, debouncedSearchKey])
+
+  const { getCV } = useGetCV()
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -53,13 +79,16 @@ export default function ApplicantsPage() {
                 type="search"
                 placeholder="Tìm kiếm ứng viên..."
                 className="w-full pl-8"
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 Xuất Excel
-              </Button>
+              </Button> */}
               <Button variant="outline" size="sm">
+                <Filter />
                 Lọc
               </Button>
             </div>
@@ -68,33 +97,36 @@ export default function ApplicantsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>ID</TableHead>
                   <TableHead>Họ và tên</TableHead>
                   <TableHead>Vị trí ứng tuyển</TableHead>
                   <TableHead>Thông tin liên hệ</TableHead>
-                  <TableHead>Trạng thái</TableHead>
+                  {/* <TableHead>Trạng thái</TableHead> */}
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {applicants.map((applicant) => (
-                  <TableRow key={applicant.id}>
-                    <TableCell className="font-medium">
-                      {applicant.name}
-                    </TableCell>
-                    <TableCell>{applicant.position}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col space-y-1">
-                        <div className="flex items-center text-sm">
-                          <Mail className="mr-2 h-3 w-3 text-muted-foreground" />
-                          {applicant.email}
+                {candidates.length > 0 ? (
+                  candidates.map((applicant) => (
+                    <TableRow key={applicant.id}>
+                      <TableCell>{applicant.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {applicant.fullName}
+                      </TableCell>
+                      <TableCell>{applicant.jobPosition}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col space-y-1">
+                          <div className="flex items-center text-sm">
+                            <Mail className="mr-2 h-3 w-3 text-muted-foreground" />
+                            {applicant.email}
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <Phone className="mr-2 h-3 w-3 text-muted-foreground" />
+                            {applicant.phone}
+                          </div>
                         </div>
-                        <div className="flex items-center text-sm">
-                          <Phone className="mr-2 h-3 w-3 text-muted-foreground" />
-                          {applicant.phone}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
+                      </TableCell>
+                      {/* <TableCell>
                       <Badge
                         variant="outline"
                         className={cn(
@@ -111,35 +143,52 @@ export default function ApplicantsPage() {
                       >
                         {applicant.status}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Mở menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Xem CV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
+                    </TableCell> */}
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Mở menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="p-0">
+                              <Button
+                                variant={"ghost"}
+                                className="p-2"
+                                onClick={() => {
+                                  // setSelectedCandidate(applicant)
+                                  // setOpenCvModal(true)
+                                  getCV(applicant.id)
+                                }}
+                              >
+                                <FileText className="mb-0.5 h-4 w-4" />
+                                Xem CV
+                              </Button>
+                            </DropdownMenuItem>
+                            {/* <DropdownMenuItem>
                             <Calendar className="mr-2 h-4 w-4" />
                             Lên lịch phỏng vấn
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <Mail className="mr-2 h-4 w-4" />
                             Gửi email
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuItem> */}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="text-center">
+                    <TableCell colSpan={6} className="py-8">
+                      Không tìm thấy ứng viên nào
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -157,50 +206,45 @@ export default function ApplicantsPage() {
   )
 }
 
-// Helper function for conditional class names
-const cn = (...classes: any[]) => {
-  return classes.filter(Boolean).join(" ")
-}
-
-const applicants = [
-  {
-    id: 1,
-    name: "Olivia Wilson",
-    position: "Quản lý sản phẩm",
-    email: "olivia.wilson@example.com",
-    phone: "0912 345 678",
-    status: "Chờ phỏng vấn",
-  },
-  {
-    id: 3,
-    name: "Nguyễn Văn Minh",
-    position: "Nhà thiết kế UX/UI",
-    email: "minh.nguyen@example.com",
-    phone: "0901 234 567",
-    status: "Trúng tuyển",
-  },
-  {
-    id: 4,
-    name: "Lê Thị Hương",
-    position: "Kỹ sư phần mềm cao cấp",
-    email: "huong.le@example.com",
-    phone: "0976 543 210",
-    status: "Từ chối",
-  },
-  {
-    id: 5,
-    name: "Phạm Văn Đức",
-    position: "Nhà thiết kế UX/UI",
-    email: "duc.pham@example.com",
-    phone: "0932 109 876",
-    status: "Chờ phỏng vấn",
-  },
-  {
-    id: 6,
-    name: "Hoàng Thị Mai",
-    position: "Quản lý sản phẩm",
-    email: "mai.hoang@example.com",
-    phone: "0965 432 109",
-    status: "Trúng tuyển",
-  },
-]
+// const applicants = [
+//   {
+//     id: 1,
+//     name: "Olivia Wilson",
+//     position: "Quản lý sản phẩm",
+//     email: "olivia.wilson@example.com",
+//     phone: "0912 345 678",
+//     status: "Chờ phỏng vấn",
+//   },
+//   {
+//     id: 3,
+//     name: "Nguyễn Văn Minh",
+//     position: "Nhà thiết kế UX/UI",
+//     email: "minh.nguyen@example.com",
+//     phone: "0901 234 567",
+//     status: "Trúng tuyển",
+//   },
+//   {
+//     id: 4,
+//     name: "Lê Thị Hương",
+//     position: "Kỹ sư phần mềm cao cấp",
+//     email: "huong.le@example.com",
+//     phone: "0976 543 210",
+//     status: "Từ chối",
+//   },
+//   {
+//     id: 5,
+//     name: "Phạm Văn Đức",
+//     position: "Nhà thiết kế UX/UI",
+//     email: "duc.pham@example.com",
+//     phone: "0932 109 876",
+//     status: "Chờ phỏng vấn",
+//   },
+//   {
+//     id: 6,
+//     name: "Hoàng Thị Mai",
+//     position: "Quản lý sản phẩm",
+//     email: "mai.hoang@example.com",
+//     phone: "0965 432 109",
+//     status: "Trúng tuyển",
+//   },
+// ]

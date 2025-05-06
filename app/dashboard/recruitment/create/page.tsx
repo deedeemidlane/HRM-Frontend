@@ -1,14 +1,11 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Card,
   CardContent,
@@ -30,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { format } from "date-fns"
+import { format, formatDate } from "date-fns"
 import { cn } from "@/lib/utils"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import {
@@ -41,128 +38,57 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-
-// Định nghĩa schema validation với Zod
-const jobPostingSchema = z
-  .object({
-    title: z
-      .string()
-      .min(10, { message: "Tiêu đề phải có ít nhất 10 ký tự" })
-      .max(100, { message: "Tiêu đề không được vượt quá 100 ký tự" }),
-    jobType: z.string({
-      required_error: "Vui lòng chọn loại công việc",
-    }),
-    level: z.string({
-      required_error: "Vui lòng chọn cấp bậc",
-    }),
-    salaryMin: z
-      .string()
-      .min(1, { message: "Vui lòng nhập mức lương tối thiểu" })
-      .refine((val) => !isNaN(Number(val)), {
-        message: "Mức lương phải là số",
-      }),
-    salaryMax: z
-      .string()
-      .min(1, { message: "Vui lòng nhập mức lương tối đa" })
-      .refine((val) => !isNaN(Number(val)), {
-        message: "Mức lương phải là số",
-      }),
-    description: z
-      .string()
-      .min(50, { message: "Mô tả công việc phải có ít nhất 50 ký tự" }),
-    requirements: z
-      .string()
-      .min(50, { message: "Yêu cầu ứng viên phải có ít nhất 50 ký tự" }),
-    benefits: z
-      .string()
-      .min(50, { message: "Quyền lợi phải có ít nhất 50 ký tự" }),
-    city: z.string({
-      required_error: "Vui lòng chọn tỉnh/thành phố",
-    }),
-    address: z
-      .string()
-      .min(5, { message: "Địa chỉ phải có ít nhất 5 ký tự" })
-      .max(200, { message: "Địa chỉ không được vượt quá 200 ký tự" }),
-    startDate: z.string({
-      required_error: "Vui lòng chọn ngày bắt đầu",
-    }),
-    endDate: z.string({
-      required_error: "Vui lòng chọn ngày kết thúc",
-    }),
-    startTime: z.string({
-      required_error: "Vui lòng chọn giờ bắt đầu",
-    }),
-    endTime: z.string({
-      required_error: "Vui lòng chọn giờ kết thúc",
-    }),
-    deadline: z.date({
-      required_error: "Vui lòng chọn hạn nộp hồ sơ",
-    }),
-  })
-  .refine(
-    (data) => {
-      return Number(data.salaryMax) >= Number(data.salaryMin)
-    },
-    {
-      message: "Mức lương tối đa phải lớn hơn hoặc bằng mức lương tối thiểu",
-      path: ["salaryMax"],
-    }
-  )
-  .refine(
-    (data) => {
-      return data.endDate >= data.startDate
-    },
-    {
-      message: "Ngày kết thúc phải sau ngày bắt đầu",
-      path: ["endDate"],
-    }
-  )
-
-// Kiểu dữ liệu từ schema
-type JobPostingFormValues = z.infer<typeof jobPostingSchema>
+import useCreateJob from "@/hooks/hr/useCreateJob"
+import { JobPostingFormValues, jobPostingSchema } from "../schema"
+import { useEffect, useState } from "react"
+import { IDepartment } from "@/types/Department"
+import useGetAllDepartments from "@/hooks/others/useGetAllDepartments"
 
 export default function CreateJobPostingPage() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
 
-  // Khởi tạo form với React Hook Form và Zod resolver
+  const [departments, setDepartments] = useState<IDepartment[]>([])
+  const { getAllDepartments } = useGetAllDepartments()
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      const fetchedDepartments = await getAllDepartments()
+      if (fetchedDepartments) setDepartments(fetchedDepartments)
+    }
+    fetchDepartments()
+  }, [])
+
   const form = useForm<JobPostingFormValues>({
     resolver: zodResolver(jobPostingSchema),
     defaultValues: {
-      title: "",
-      jobType: "",
-      level: "",
-      salaryMin: "",
-      salaryMax: "",
-      description: "",
+      jobTitle: "",
+      // departmentId: "",
+      position: "",
+      salary: "",
+      jobDescription: "",
       requirements: "",
-      benefits: "",
-      city: "",
-      address: "",
-      startTime: "",
-      endTime: "",
+      location: "Hà Nội",
     },
   })
 
+  const { loading, createJob } = useCreateJob()
+
   const handleSubmit = async (data: JobPostingFormValues) => {
-    setIsLoading(true)
+    console.log("Form data:", data)
 
-    try {
-      // Giả lập API delay
-      console.log("Form data:", data)
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Chuyển hướng đến trang recruitment
-      router.push("/dashboard/recruitment")
-    } catch (error) {
-      console.error("Error submitting form:", error)
-    } finally {
-      setIsLoading(false)
+    const formattedData = {
+      ...data,
+      closedDate: formatDate(data.closedDate, "yyyy-MM-dd"),
+      salary: Number(data.salary),
+      departmentId: Number(data.departmentId),
     }
+    console.log("formatted data: ", formattedData)
+
+    createJob(formattedData)
   }
 
   return (
-    <div className="container">
+    <div className="container pb-10">
       <div className="mb-2">
         <Button variant="ghost" size="sm" asChild className="mr-2">
           <Link href="/dashboard/recruitment">
@@ -182,7 +108,7 @@ export default function CreateJobPostingPage() {
             <CardContent className="space-y-6">
               <FormField
                 control={form.control}
-                name="title"
+                name="jobTitle"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tiêu đề tin tuyển dụng</FormLabel>
@@ -200,28 +126,28 @@ export default function CreateJobPostingPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
-                  name="jobType"
+                  name="departmentId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Loại công việc</FormLabel>
+                      <FormLabel>Phòng ban</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn loại công việc" />
+                            <SelectValue placeholder="Chọn phòng ban" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="full-time">
-                            Toàn thời gian
-                          </SelectItem>
-                          <SelectItem value="part-time">
-                            Bán thời gian
-                          </SelectItem>
-                          <SelectItem value="contract">Hợp đồng</SelectItem>
-                          <SelectItem value="internship">Thực tập</SelectItem>
+                          {departments.map((department) => (
+                            <SelectItem
+                              key={department.id}
+                              value={department.id.toString()}
+                            >
+                              {department.departmentName}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -231,36 +157,23 @@ export default function CreateJobPostingPage() {
 
                 <FormField
                   control={form.control}
-                  name="level"
+                  name="position"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cấp bậc</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn cấp bậc" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="intern">Thực tập sinh</SelectItem>
-                          <SelectItem value="fresher">Fresher</SelectItem>
-                          <SelectItem value="junior">Junior</SelectItem>
-                          <SelectItem value="middle">Middle</SelectItem>
-                          <SelectItem value="senior">Senior</SelectItem>
-                          <SelectItem value="leader">Team Leader</SelectItem>
-                          <SelectItem value="manager">Manager</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Vị trí tuyển dụng</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Nhập vị trí. VD: Web Developer..."
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Mức lương</Label>
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
@@ -302,11 +215,70 @@ export default function CreateJobPostingPage() {
                     )}
                   />
                 </div>
+              </div> */}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="salary"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel>Mức lương (triệu VNĐ)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Nhập mức lương. VD: 15"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="closedDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel>Hạn nộp hồ sơ</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Chọn ngày</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <FormField
                 control={form.control}
-                name="description"
+                name="jobDescription"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Mô tả công việc</FormLabel>
@@ -315,7 +287,7 @@ export default function CreateJobPostingPage() {
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Nhập mô tả công việc"
-                        error={!!form.formState.errors.description}
+                        error={!!form.formState.errors.jobDescription}
                       />
                     </FormControl>
                     <FormMessage />
@@ -343,199 +315,51 @@ export default function CreateJobPostingPage() {
               />
 
               {/* <FormField
-                    control={form.control}
-                    name="benefits"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quyền lợi</FormLabel>
-                        <FormControl>
-                          <RichTextEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Nhập quyền lợi"
-                            error={!!form.formState.errors.benefits}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
-
-              <div className="space-y-2">
-                <Label>Địa điểm làm việc</Label>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs text-muted-foreground">
-                          Tỉnh/Thành phố
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn tỉnh/thành phố" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="hanoi">Hà Nội</SelectItem>
-                            <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
-                            <SelectItem value="danang">Đà Nẵng</SelectItem>
-                            <SelectItem value="bacgiang">Bắc Giang</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs text-muted-foreground">
-                          Địa chỉ cụ thể
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Nhập địa chỉ cụ thể" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* <div className="space-y-2">
-                    <Label>Thời gian làm việc</Label>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="startDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Ngày bắt đầu</FormLabel>
-    
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="endDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Ngày kết thúc</FormLabel>
-    
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-2 mt-4">
-                      <FormField
-                        control={form.control}
-                        name="startTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Giờ bắt đầu</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn giờ bắt đầu" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 13 }, (_, i) => i + 7).map(
-                                  (hour) => (
-                                    <SelectItem key={hour} value={hour.toString()}>
-                                      {hour}:00
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="endTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Giờ kết thúc</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn giờ kết thúc" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 13 }, (_, i) => i + 7).map(
-                                  (hour) => (
-                                    <SelectItem key={hour} value={hour.toString()}>
-                                      {hour}:00
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div> */}
-
-              <FormField
                 control={form.control}
-                name="deadline"
+                name="benefits"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Hạn nộp hồ sơ</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Chọn ngày</span>
-                            )}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel>Quyền lợi</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Nhập quyền lợi"
+                        error={!!form.formState.errors.benefits}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
+
+              {/* <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Địa điểm</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn tỉnh/thành phố" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="hanoi">Hà Nội</SelectItem>
+                          <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
+                          <SelectItem value="danang">Đà Nẵng</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div> */}
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button
@@ -548,9 +372,9 @@ export default function CreateJobPostingPage() {
               <Button
                 type="submit"
                 className="bg-[#3db87a] hover:bg-[#35a46c]"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Đang xử lý...

@@ -1,6 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Plus,
   Users,
@@ -10,9 +12,33 @@ import {
   Eye,
   Calendar,
   MapPin,
+  Search,
+  Filter,
 } from "lucide-react"
+import { useEffect, useState } from "react"
+import useGetAllJobs from "@/hooks/others/useGetAllJobs"
+import useDebounce from "@/hooks/use-debounce"
+import { Input } from "@/components/ui/input"
+import { IJob } from "@/types/Job"
+import { formatDateString } from "@/utils/formatDate"
 
 export default function RecruitmentManagementPage() {
+  const [jobs, setJobs] = useState<IJob[]>([])
+  const { getAllJobs } = useGetAllJobs()
+
+  const [toggleReRender, setToggleReRender] = useState(false)
+
+  const [searchKey, setSearchKey] = useState("")
+  const debouncedSearchKey = useDebounce(searchKey, 300)
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const fetchedJobs = await getAllJobs(debouncedSearchKey)
+      if (fetchedJobs) setJobs(fetchedJobs)
+    }
+    fetchJobs()
+  }, [toggleReRender, debouncedSearchKey])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -31,109 +57,91 @@ export default function RecruitmentManagementPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Danh sách tin tuyển dụng</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {allJobs.map((job) => (
-            <div key={job.id} className="rounded-lg border bg-white p-6">
-              <div className="space-y-4">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                  <h3 className="text-xl font-bold text-gray-800">
-                    {job.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Tìm kiếm..."
+                className="w-full pl-8"
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" size="sm">
+                <Filter />
+                Lọc
+              </Button>
+            </div>
+          </div>
+          {jobs.length > 0 ? (
+            jobs.map((job) => (
+              <div key={job.id} className="rounded-lg border bg-white p-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {job.jobTitle}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {/* <Button
                       variant="ghost"
                       size="sm"
                       className="h-8 gap-1 text-[#3db87a] hover:text-[#3db87a]"
                     >
                       <Eye className="h-4 w-4" />
                       Ẩn
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1 text-blue-600 hover:text-blue-600"
-                    >
-                      <FileEdit className="h-4 w-4" />
-                      Chỉnh sửa
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1 text-red-600 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Xoá
-                    </Button>
+                    </Button> */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 text-blue-600 hover:text-blue-600"
+                      >
+                        <FileEdit className="h-4 w-4 mb-0.5" />
+                        Chỉnh sửa
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 text-red-600 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mb-0.5" />
+                        Xoá
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="grid gap-4 md:grid-cols-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="h-4 w-4 text-[#3db87a]" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="h-4 w-4 text-[#3db87a]" />
-                    <span>{job.salaryRange}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="h-4 w-4 text-[#3db87a]" />
-                    <span>{job.deadline}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex flex-wrap items-center gap-5 md:gap-10">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <MapPin className="h-4 w-4 text-[#3db87a]" />
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="h-4 w-4 text-[#3db87a]" />
+                      <span>{job.salary} triệu VNĐ</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="h-4 w-4 text-[#3db87a]" />
+                      <span>{formatDateString(job.closedDate)}</span>
+                    </div>
+                    {/* <div className="flex items-center gap-2 text-gray-600">
                     <Users className="h-4 w-4 text-[#3db87a]" />
                     <span>Lượt ứng tuyển: {job.applicants}</span>
+                  </div> */}
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-10">
+              Không tìm thấy tin tuyển dụng nào
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
-
-const jobs = [
-  {
-    id: 1,
-    position: "Lập Trình Viên ASP.Net, C# (Intern, Fresher)",
-    location: "Hà Nội",
-    salaryRange: "5 - 10 triệu",
-    deadline: "01/04/2025",
-    applicants: 2,
-    status: "Active",
-  },
-  {
-    id: 2,
-    position: "Ruby On Rails Developer",
-    location: "Hà Nội",
-    salaryRange: "Thỏa thuận",
-    deadline: "04/04/2025",
-    applicants: 2,
-    status: "Active",
-  },
-  {
-    id: 3,
-    position: "Full-Stack Web Developer",
-    location: "Hà Nội",
-    salaryRange: "15 - 40 triệu",
-    deadline: "08/05/2025",
-    applicants: 2,
-    status: "Active",
-  },
-  {
-    id: 4,
-    position: "Android Developer (Fluent In English)",
-    location: "Hà Nội",
-    salaryRange: "25 - 50 triệu",
-    deadline: "08/04/2025",
-    applicants: 1,
-    status: "Active",
-  },
-]
 
 const allJobs = [
   {

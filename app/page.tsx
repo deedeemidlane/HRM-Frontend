@@ -2,15 +2,30 @@
 
 import type React from "react"
 
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { ArrowRight, Users, Briefcase, Award, Send, Menu } from "lucide-react"
+import {
+  ArrowRight,
+  Users,
+  Briefcase,
+  Award,
+  Send,
+  Menu,
+  ExternalLink,
+  Calendar,
+  MapPin,
+  CircleDollarSign,
+} from "lucide-react"
 import toast from "react-hot-toast"
 import { HomeHeader } from "@/components/home-header"
+import useGetAllJobs from "@/hooks/others/useGetAllJobs"
+import { IJob } from "@/types/Job"
+import { formatDateString } from "@/utils/formatDate"
+import { Badge } from "@/components/ui/badge"
 
 export default function Home() {
   const aboutRef = useRef<HTMLElement>(null)
@@ -21,6 +36,17 @@ export default function Home() {
     toast.success("Cảm ơn bạn đã gửi tin nhắn!")
     e.currentTarget.reset()
   }
+
+  const [jobs, setJobs] = useState<IJob[]>([])
+  const { getAllJobs } = useGetAllJobs()
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const fetchedJobs = await getAllJobs("")
+      if (fetchedJobs) setJobs(fetchedJobs)
+    }
+    fetchJobs()
+  }, [])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -145,22 +171,41 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-2">
-              {featuredJobs.map((job) => (
+              {jobs.slice(0, 3).map((job) => (
                 <div
                   key={job.id}
                   className="rounded-lg border bg-card text-card-foreground shadow-sm"
                 >
                   <div className="p-6 space-y-4">
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-bold">{job.title}</h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{job.location}</span>
-                        <span>•</span>
-                        <span>{job.type}</span>
+                      <h3 className="text-2xl font-bold">{job.jobTitle}</h3>
+                      <Badge className="bg-[#edf7f2] text-[#3db87a]">
+                        {job.departmentName}
+                      </Badge>
+                      <div className="my-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>{job.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CircleDollarSign className="h-4 w-4" />
+                          <span>{job.salary} triệu VNĐ</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDateString(job.closedDate)}</span>
+                        </div>
+                      </div>
+                      <div className="w-full pt-4">
+                        <Link href={`/jobs/${job.id}`} className="w-full">
+                          <Button className="bg-[#3db87a] hover:bg-[#35a46c] w-full">
+                            Xem chi tiết
+                            <ExternalLink className="mb-0.5" />
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    <p className="text-gray-500">{job.description}</p>
-                    <div className="flex flex-wrap gap-2">
+                    {/* <div className="flex flex-wrap gap-2">
                       {job.skills.map((skill) => (
                         <span
                           key={skill}
@@ -169,10 +214,7 @@ export default function Home() {
                           {skill}
                         </span>
                       ))}
-                    </div>
-                    <Button className="bg-[#3db87a] hover:bg-[#35a46c]" asChild>
-                      <Link href={`/jobs/${job.id}`}>Xem chi tiết</Link>
-                    </Button>
+                    </div> */}
                   </div>
                 </div>
               ))}

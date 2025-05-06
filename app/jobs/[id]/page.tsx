@@ -1,11 +1,18 @@
-// "use client"
-
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Clock, Calendar, ArrowLeft, BriefcaseIcon } from "lucide-react"
+import {
+  MapPin,
+  Clock,
+  Calendar,
+  ArrowLeft,
+  CircleDollarSign,
+} from "lucide-react"
 import { JobApplicationModal } from "@/components/job-application-modal"
 import { HomeHeader } from "@/components/home-header"
+import { IJob } from "@/types/Job"
+import useGetJobDetail from "@/hooks/others/useGetJobDetail"
+import { formatDateString } from "@/utils/formatDate"
+import { Badge } from "@/components/ui/badge"
 
 interface JobDetailPageProps {
   params: Promise<{
@@ -15,7 +22,10 @@ interface JobDetailPageProps {
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { id } = await params
-  const job = allJobs.find((job) => job.id === Number.parseInt(id))
+
+  const { getJobDetail } = useGetJobDetail()
+
+  const job: IJob = await getJobDetail(id)
 
   if (!job) {
     return (
@@ -43,26 +53,22 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 Quay lại danh sách công việc
               </Link>
             </Button>
-            <h1 className="text-3xl font-bold">{job.title}</h1>
+            <h1 className="text-3xl font-bold">{job.jobTitle}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
                 <span>{job.location}</span>
               </div>
               <div className="flex items-center gap-1">
-                <BriefcaseIcon className="h-4 w-4" />
-                <span>{job.type}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{job.salaryRange}</span>
+                <CircleDollarSign className="h-4 w-4" />
+                <span>{job.salary} triệu VNĐ</span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>Hạn nộp: {job.deadline}</span>
+                <span>Hạn nộp: {formatDateString(job.closedDate)}</span>
               </div>
               <Badge className="bg-[#edf7f2] text-[#3db87a]">
-                {job.department}
+                {job.departmentName}
               </Badge>
             </div>
           </div>
@@ -71,26 +77,24 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <div className="space-y-6">
               <div className="rounded-lg border bg-card p-6">
                 <h2 className="text-xl font-bold">Mô tả công việc</h2>
-                <div className="mt-4 space-y-4">
-                  <p>{job.description}</p>
-                  <h3 className="font-bold">Trách nhiệm công việc:</h3>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {job.responsibilities.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
+                <div className="mt-4 space-y-4" suppressHydrationWarning>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: job.jobDescription,
+                    }}
+                  ></p>
                 </div>
               </div>
 
               <div className="rounded-lg border bg-card p-6">
                 <h2 className="text-xl font-bold">Yêu cầu ứng viên</h2>
-                <div className="mt-4 space-y-4">
-                  <h3 className="font-bold">Kỹ năng & Kinh nghiệm:</h3>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {job.requirements.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
+                <div className="mt-4 space-y-4" suppressHydrationWarning>
+                  {/* <h3 className="font-bold">Kỹ năng & Kinh nghiệm:</h3> */}
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: job.requirements,
+                    }}
+                  ></p>
                 </div>
               </div>
 
@@ -98,9 +102,23 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <h2 className="text-xl font-bold">Quyền lợi</h2>
                 <div className="mt-4 space-y-4">
                   <ul className="list-disc pl-5 space-y-1">
-                    {job.benefits.map((item, index) => (
+                    {jobBenefits.map((item, index) => (
                       <li key={index}>{item}</li>
                     ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="rounded-lg border bg-card p-6">
+                <h2 className="text-xl font-bold">
+                  Thời gian & Địa điểm làm việc
+                </h2>
+                <div className="mt-4 space-y-4">
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Thời gian: Thứ 2 - Thứ 6 (từ 08:00 đến 17:00)</li>
+                    <li>
+                      Địa điểm: 144 Xuân Thuỷ, Dịch Vọng Hậu, Cầu Giấy, Hà Nội
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -110,10 +128,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               <div className="rounded-lg border bg-card p-6 sticky top-6">
                 <h2 className="text-xl font-bold">Ứng tuyển ngay</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Hãy nộp hồ sơ của bạn để ứng tuyển vị trí {job.title} tại ADA.
+                  Hãy nộp hồ sơ của bạn để ứng tuyển vị trí {job.jobTitle} tại
+                  ADA.
                 </p>
                 <div className="mt-6 space-y-4">
-                  <JobApplicationModal jobTitle={job.title} />
+                  <JobApplicationModal jobTitle={job.jobTitle} jobId={id} />
                   <Button variant="outline" className="w-full" asChild>
                     <Link href="/jobs">Xem các vị trí khác</Link>
                   </Button>
@@ -136,7 +155,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-gray-500">
-          © 2023 Công ty ADA. Tất cả các quyền được bảo lưu.
+          © 2025 Công ty ADA. Tất cả các quyền được bảo lưu.
         </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4" href="#">
@@ -150,6 +169,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     </div>
   )
 }
+
+const jobBenefits = [
+  "Mức lương cạnh tranh và thưởng hiệu suất",
+  "Bảo hiểm sức khỏe toàn diện cho nhân viên và gia đình",
+  "Chế độ nghỉ phép linh hoạt",
+  "Môi trường làm việc năng động và sáng tạo",
+  "Cơ hội học tập và phát triển chuyên môn",
+  "Các hoạt động team building và sự kiện công ty thường xuyên",
+]
 
 const allJobs = [
   {

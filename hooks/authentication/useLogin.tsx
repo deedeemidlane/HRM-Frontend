@@ -2,6 +2,8 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { useUserContext } from "@/contexts/UserContext"
+import { IRole } from "@/types/User"
+import { hasRole } from "@/utils/checkRole"
 
 const useLogin = () => {
   const router = useRouter()
@@ -36,19 +38,22 @@ const useLogin = () => {
 
       toast.success(result.message)
 
-      switch (userData.roles[0].name) {
-        case "ROLE_ADMIN":
-          router.push("/dashboard/admin/users")
-          break
-        case "ROLE_MANAGER":
-          router.push("/dashboard")
-          break
-        case "ROLE_USER":
-          router.push("/dashboard/checkin")
-          break
-        default:
-          router.push("/dashboard")
-          break
+      console.log(userData)
+
+      if (hasRole("ROLE_ADMIN", userData.roles)) {
+        // router.push("/dashboard/admin/users")
+        window.location.replace("/dashboard/admin/users")
+      } else if (hasRole("ROLE_MANAGER", userData.roles)) {
+        // router.push("/dashboard/manager/approvals")
+        window.location.replace("/dashboard/manager/approvals")
+      } else {
+        if (userData.departmentName === "Human Resources") {
+          // router.push("/dashboard/attendance")
+          window.location.replace("/dashboard/attendance")
+        } else {
+          // router.push("/dashboard/checkin")
+          window.location.replace("/dashboard/checkin")
+        }
       }
     } catch (error: any) {
       console.error("Lỗi đăng nhập:", error)

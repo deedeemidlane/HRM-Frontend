@@ -26,6 +26,8 @@ const useLogout = () => {
       setUser(undefined)
       localStorage.removeItem("ada_hrm_user")
       toast.success(result.message)
+
+      window.location.replace("/login")
     } catch (error: any) {
       console.error("Lỗi đăng xuất:", error)
     } finally {
