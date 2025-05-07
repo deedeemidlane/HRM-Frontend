@@ -36,6 +36,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useApply from "@/hooks/others/useApply"
+import { DatePicker } from "./ui/date-picker"
+import { formatDate } from "date-fns"
 
 // Định nghĩa schema validation
 const formSchema = z.object({
@@ -44,17 +46,7 @@ const formSchema = z.object({
   phone: z.string().min(10, { message: "Số điện thoại không hợp lệ" }).max(15),
   address: z.string().min(1, { message: "Vui lòng nhập địa chỉ" }),
   gender: z.string({ required_error: "Vui lòng chọn giới tính" }),
-  dateOfBirth: z.string().refine(
-    (val) => {
-      const date = new Date(val)
-      const now = new Date()
-      return (
-        date < now &&
-        date > new Date(now.getFullYear() - 100, now.getMonth(), now.getDate())
-      )
-    },
-    { message: "Ngày sinh không hợp lệ" }
-  ),
+  dateOfBirth: z.date({ required_error: "Vui lòng chọn ngày sinh" }),
   idNumber: z
     .string()
     .min(12, { message: "Số CCCD/CMND không hợp lệ" })
@@ -86,7 +78,7 @@ export function JobApplicationModal({
       phone: "",
       address: "",
       // gender: "",
-      dateOfBirth: "",
+      // dateOfBirth: "",
       idNumber: "",
       cvLetter: "",
     },
@@ -112,7 +104,7 @@ export function JobApplicationModal({
     formData.append("phone", data.phone)
     formData.append("address", data.address)
     formData.append("gender", data.gender)
-    formData.append("dateOfBirth", data.dateOfBirth)
+    formData.append("dateOfBirth", formatDate(data.dateOfBirth, "yyyy-MM-dd"))
     formData.append("idNumber", data.idNumber)
     formData.append("jobId", jobId)
 
@@ -292,7 +284,13 @@ export function JobApplicationModal({
                           Ngày sinh <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          {/* <Input type="date" {...field} /> */}
+                          <DatePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                            startYear={1950}
+                            endYear={2025}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -1,38 +1,34 @@
 import { useState } from "react"
 import toast from "react-hot-toast"
-import { useRouter } from "next/navigation"
 
-const useCreateInterview = () => {
-  const router = useRouter()
+const useUpdateAttendance = () => {
   const [loading, setLoading] = useState(false)
 
-  const createInterview = async (interviewData: {}) => {
+  const updateAttendance = async (attendanceData: {}) => {
     setLoading(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/interviews`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/time-keeping`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify(interviewData),
+          body: JSON.stringify(attendanceData),
         }
       )
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || "Tạo thất bại")
+        throw new Error(result.message || "Thất bại")
       }
       console.log(result)
 
-      toast.success(result.message || "Tạo lịch phỏng vấn thành công")
-
-      router.push("/dashboard/recruitment/interviews")
+      toast.success(result.message || "Cập nhật thông tin chấm công thành công")
     } catch (error: any) {
-      console.error("Error in useCreateInterview:", error)
+      console.error("Error in useUpdateAttendance:", error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
@@ -43,6 +39,6 @@ const useCreateInterview = () => {
     }
   }
 
-  return { loading, createInterview }
+  return { loading, updateAttendance }
 }
-export default useCreateInterview
+export default useUpdateAttendance

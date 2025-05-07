@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,26 +21,101 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MapPin, Calendar, CheckCircle, XCircle } from "lucide-react"
+import { formatDate } from "date-fns"
+import useCheckIn from "@/hooks/employee/useCheckIn"
+import { Spinner } from "@/components/Spinner"
+import useGetCheckInHistory from "@/hooks/employee/useGetCheckInHistory"
+import { IAttendance } from "@/types/Attendance"
+import { DISPLAYED_ATTENDANCE_STATUSES } from "@/constants/statuses"
+import { formatDateString } from "@/utils/formatDate"
 
 export default function EmployeeCheckinPage() {
-  const [checkedIn, setCheckedIn] = useState(false)
-  const [checkedOut, setCheckedOut] = useState(false)
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
   )
-  const [checkInTime, setCheckInTime] = useState("")
-  const [checkOutTime, setCheckOutTime] = useState("")
 
-  const handleCheckIn = () => {
-    const time = new Date().toLocaleTimeString()
-    setCheckInTime(time)
-    setCheckedIn(true)
-  }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString())
+    }, 1000)
 
-  const handleCheckOut = () => {
-    const time = new Date().toLocaleTimeString()
-    setCheckOutTime(time)
-    setCheckedOut(true)
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval)
+  }, [])
+
+  const [toggleReRender, setToggleReRender] = useState(false)
+
+  const { getCheckInHistory } = useGetCheckInHistory()
+
+  const [currentMonthCheckInHistory, setCurrentMonthCheckInHistory] = useState<
+    IAttendance[]
+  >([])
+  const [todayAttendance, setTodayAttendance] = useState<IAttendance>()
+
+  useEffect(() => {
+    const fetchCheckInHistory = async () => {
+      const fetchedCheckInHistory: IAttendance[] = await getCheckInHistory(
+        new Date().getMonth() + 1,
+        new Date().getFullYear()
+      )
+      if (fetchedCheckInHistory) {
+        setCurrentMonthCheckInHistory(fetchedCheckInHistory)
+
+        setTodayAttendance(
+          fetchedCheckInHistory.find(
+            (a) => a.date === formatDate(new Date(), "yyyy-MM-dd")
+          )
+        )
+      }
+    }
+    fetchCheckInHistory()
+  }, [toggleReRender])
+
+  const checkedIn = useMemo(() => {
+    // Check if todayAttendance exists and has a valid check-in time
+    return todayAttendance?.checkInTime ? true : false
+  }, [todayAttendance])
+
+  const checkedOut = useMemo(() => {
+    // Check if todayAttendance exists and has a valid check-out time
+    return todayAttendance?.checkOutTime ? true : false
+  }, [todayAttendance])
+
+  const checkInTime = useMemo(() => {
+    return todayAttendance?.checkInTime || "--:--:--"
+  }, [todayAttendance])
+
+  const checkOutTime = useMemo(() => {
+    return todayAttendance?.checkOutTime || "--:--:--"
+  }, [todayAttendance])
+
+  const { loading, checkIn } = useCheckIn()
+
+  const handleCheck = () => {
+    if (!navigator.geolocation) {
+      console.error("Geolocation is not supported by this browser.")
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+
+        const data = {
+          time: formatDate(new Date(), "hh:mm:00"),
+          longitude,
+          latitude,
+        }
+
+        console.log("check in data: ", data)
+
+        await checkIn(data)
+        setToggleReRender(!toggleReRender)
+      },
+      (error) => {
+        console.error("Error getting location:", error)
+      }
+    )
   }
 
   return (
@@ -54,7 +129,9 @@ export default function EmployeeCheckinPage() {
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-muted-foreground" />
-          <span className="font-medium">Thứ 2, 24/04/2025</span>
+          <span className="font-medium">
+            {formatDate(new Date(), "EEE dd/MM/yyyy")}
+          </span>
         </div>
       </div>
 
@@ -72,30 +149,42 @@ export default function EmployeeCheckinPage() {
               >
                 {currentTime}
               </div>
-              <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              {/* <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>Văn phòng ADA - Hà Nội</span>
-              </div>
+              </div> */}
             </div>
-            <div className="flex w-full max-w-md flex-col gap-4 sm:flex-row">
+            <div className="flex w-full max-w-md flex-col gap-4 sm:flex-row sm:flex-wrap">
               <Button
                 className="flex-1 bg-[#3db87a] hover:bg-[#35a46c]"
                 size="lg"
-                onClick={handleCheckIn}
-                disabled={checkedIn}
+                onClick={handleCheck}
+                disabled={checkedIn || loading}
               >
-                <Clock className="mr-2 h-5 w-5" />
-                Check-in
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <Clock className="mr-2 h-5 w-5" />
+                    Check-in
+                  </>
+                )}
               </Button>
               <Button
                 className="flex-1"
                 size="lg"
                 variant="outline"
-                onClick={handleCheckOut}
-                disabled={!checkedIn || checkedOut}
+                onClick={handleCheck}
+                disabled={!checkedIn || checkedOut || loading}
               >
-                <Clock className="mr-2 h-5 w-5" />
-                Check-out
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <Clock className="mr-2 h-5 w-5" />
+                    Check-out
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
@@ -126,19 +215,39 @@ export default function EmployeeCheckinPage() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Tổng công:</p>
-                <p className="text-2xl font-bold">18/22</p>
+                <p className="text-2xl font-bold">
+                  {currentMonthCheckInHistory.length}/22
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Đúng giờ:</p>
-                <p className="text-2xl font-bold">16</p>
+                <p className="text-2xl font-bold">
+                  {
+                    currentMonthCheckInHistory.filter(
+                      (attendance) => attendance.status === "ON_TIME"
+                    ).length
+                  }
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Đi muộn:</p>
-                <p className="text-2xl font-bold">2</p>
+                <p className="text-2xl font-bold">
+                  {
+                    currentMonthCheckInHistory.filter(
+                      (attendance) => attendance.status === "LATE"
+                    ).length
+                  }
+                </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Nghỉ phép:</p>
-                <p className="text-2xl font-bold">4</p>
+                <p className="text-sm text-muted-foreground">Vắng:</p>
+                <p className="text-2xl font-bold">
+                  {
+                    currentMonthCheckInHistory.filter(
+                      (attendance) => attendance.status === "ABSENT"
+                    ).length
+                  }
+                </p>
               </div>
             </div>
             <div className="rounded-lg border bg-muted/40 p-4">
@@ -156,13 +265,14 @@ export default function EmployeeCheckinPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <Tabs defaultValue="history">
+        <CardHeader className="font-bold text-xl">
+          {/* <Tabs defaultValue="history">
             <TabsList>
               <TabsTrigger value="history">Lịch sử chấm công</TabsTrigger>
               <TabsTrigger value="requests">Yêu cầu của tôi</TabsTrigger>
             </TabsList>
-          </Tabs>
+          </Tabs> */}
+          Lịch sử chấm công
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="history">
@@ -171,36 +281,42 @@ export default function EmployeeCheckinPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Ngày</TableHead>
-                      <TableHead>Giờ vào</TableHead>
-                      <TableHead>Giờ ra</TableHead>
-                      <TableHead>Tổng giờ</TableHead>
+                      <TableHead className="w-52">Ngày</TableHead>
+                      <TableHead className="text-center">Giờ vào</TableHead>
+                      <TableHead className="text-center">Giờ ra</TableHead>
+                      <TableHead className="text-center">Tổng giờ</TableHead>
                       <TableHead>Trạng thái</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {attendanceHistory.map((record) => (
+                    {currentMonthCheckInHistory.map((record) => (
                       <TableRow key={record.id}>
                         <TableCell className="font-medium">
-                          {record.date}
+                          {formatDateString(record.date)}
                         </TableCell>
-                        <TableCell>{record.checkIn}</TableCell>
-                        <TableCell>{record.checkOut}</TableCell>
-                        <TableCell>{record.totalHours}</TableCell>
+                        <TableCell className="text-center">
+                          {record.checkInTime || "-"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {record.checkOutTime || "-"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {record.totalWorkingTime || "-"}
+                        </TableCell>
                         <TableCell>
                           <Badge
                             variant="outline"
                             className={cn(
                               "border-none",
-                              record.status === "Đúng giờ" &&
+                              record.status === "ON_TIME" &&
                                 "bg-green-100 text-green-800",
-                              record.status === "Đi muộn" &&
+                              record.status === "LATE" &&
                                 "bg-amber-100 text-amber-800",
-                              record.status === "Nghỉ phép" &&
-                                "bg-blue-100 text-blue-800"
+                              record.status === "ABSENT" &&
+                                "bg-red-100 text-red-800"
                             )}
                           >
-                            {record.status}
+                            {DISPLAYED_ATTENDANCE_STATUSES[record.status]}
                           </Badge>
                         </TableCell>
                       </TableRow>

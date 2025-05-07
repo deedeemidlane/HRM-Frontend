@@ -2,22 +2,22 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 
-const useCreateInterview = () => {
+const useCreateContract = () => {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  const createInterview = async (interviewData: {}) => {
+  const createContract = async (contractData: {}) => {
     setLoading(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/interviews`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contracts`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify(interviewData),
+          body: JSON.stringify(contractData),
         }
       )
 
@@ -28,11 +28,11 @@ const useCreateInterview = () => {
       }
       console.log(result)
 
-      toast.success(result.message || "Tạo lịch phỏng vấn thành công")
+      toast.success(result.message || "Tạo hợp đồng thành công")
 
-      router.push("/dashboard/recruitment/interviews")
+      router.push("/dashboard/contracts")
     } catch (error: any) {
-      console.error("Error in useCreateInterview:", error)
+      console.error("Error in useCreateContract:", error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
@@ -43,6 +43,6 @@ const useCreateInterview = () => {
     }
   }
 
-  return { loading, createInterview }
+  return { loading, createContract }
 }
-export default useCreateInterview
+export default useCreateContract

@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 import useGetAllInterviews from "@/hooks/hr/useGetAllInterviews"
 import { IInterview } from "@/types/Interview"
+import { formatDateString } from "@/utils/formatDate"
 
 export default function InterviewsPage() {
   const [interviews, setInterviews] = useState<IInterview[]>([])
@@ -107,7 +108,7 @@ export default function InterviewsPage() {
                       {interview.title}
                     </TableCell>
                     <TableCell>{interview.time}</TableCell>
-                    <TableCell>{interview.date}</TableCell>
+                    <TableCell>{formatDateString(interview.date)}</TableCell>
                     {/* <TableCell>{interview.round}</TableCell> */}
                     {/* <TableCell>
                       <Badge

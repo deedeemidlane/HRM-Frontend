@@ -1,38 +1,34 @@
 import { useState } from "react"
 import toast from "react-hot-toast"
-import { useRouter } from "next/navigation"
 
-const useCreateInterview = () => {
-  const router = useRouter()
+const useCheckIn = () => {
   const [loading, setLoading] = useState(false)
 
-  const createInterview = async (interviewData: {}) => {
+  const checkIn = async (checkInData: {}) => {
     setLoading(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/interviews`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/time-keeping`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify(interviewData),
+          body: JSON.stringify(checkInData),
         }
       )
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || "Tạo thất bại")
+        throw new Error(result.message || "Chấm công thất bại")
       }
       console.log(result)
 
-      toast.success(result.message || "Tạo lịch phỏng vấn thành công")
-
-      router.push("/dashboard/recruitment/interviews")
+      toast.success(result.message)
     } catch (error: any) {
-      console.error("Error in useCreateInterview:", error)
+      console.error("Error in useCheckIn:", error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
@@ -43,6 +39,6 @@ const useCreateInterview = () => {
     }
   }
 
-  return { loading, createInterview }
+  return { loading, checkIn }
 }
-export default useCreateInterview
+export default useCheckIn

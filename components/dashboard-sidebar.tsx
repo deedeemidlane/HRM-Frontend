@@ -23,6 +23,7 @@ import {
   Settings,
   UserCog,
   Shield,
+  User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -35,8 +36,9 @@ const PERSONAL_TABS = [
 ]
 
 const HR_TABS = [
-  "/dashboard/employees",
+  // "/dashboard/employees",
   "/dashboard/contracts",
+  "/dashboard/contracts/create",
   "/dashboard/attendance",
   "/dashboard/payroll",
   "/dashboard/reports",
@@ -181,16 +183,16 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
             >
               <SidebarItem
                 icon={<Clock className="h-4 w-4" />}
-                label="Duyệt đơn nghỉ phép/OT"
+                label="Duyệt đơn từ"
                 href="/dashboard/manager/approvals"
                 isActive={pathname === "/dashboard/manager/approvals"}
               />
-              <SidebarItem
+              {/* <SidebarItem
                 icon={<BarChart2 className="h-4 w-4" />}
                 label="Hiệu suất nhân viên"
                 href="/dashboard/manager/performance"
                 isActive={pathname === "/dashboard/manager/performance"}
-              />
+              /> */}
               <SidebarItem
                 icon={<Award className="h-4 w-4" />}
                 label="Đánh giá nhân viên"
@@ -225,7 +227,7 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
                 icon={<FileContract className="h-4 w-4" />}
                 label="Quản lý hợp đồng"
                 href="/dashboard/contracts"
-                isActive={pathname === "/dashboard/contracts"}
+                isActive={pathname.includes("/dashboard/contracts")}
               />
 
               <SidebarItem
@@ -234,12 +236,12 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
                 href="/dashboard/payroll"
                 isActive={pathname === "/dashboard/payroll"}
               />
-              <SidebarItem
+              {/* <SidebarItem
                 icon={<BarChart2 className="h-4 w-4" />}
                 label="Báo cáo nhân sự"
                 href="/dashboard/reports"
                 isActive={pathname === "/dashboard/reports"}
-              />
+              /> */}
             </SidebarItem>
           )}
 
@@ -306,7 +308,7 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
                 isActive={pathname === "/dashboard/salary"}
               />
               <SidebarItem
-                icon={<Users className="h-4 w-4" />}
+                icon={<User className="h-4 w-4" />}
                 label="Thông tin cá nhân"
                 href="/dashboard/profile"
                 isActive={pathname === "/dashboard/profile"}
