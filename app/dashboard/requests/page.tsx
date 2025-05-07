@@ -1,32 +1,196 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { format, isBefore, addDays, formatDate } from "date-fns"
 import { cn } from "@/lib/utils"
-import { CalendarIcon, CheckCircle, XCircle, Clock, FileText, CalendarPlus2Icon as CalendarIcon2 } from "lucide-react"
+import {
+  CalendarIcon,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
+  CalendarPlus2Icon as CalendarIcon2,
+  Briefcase,
+  DollarSign,
+  LogOut,
+  Laptop,
+  Home,
+  Loader2,
+} from "lucide-react"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import useCreateRequest from "@/hooks/employee/useCreateRequest"
+import useGetMyRequests from "@/hooks/employee/useGetMyRequests"
+import { IRequest, RequestType } from "@/types/Request"
+import { formatDateString } from "@/utils/formatDate"
+import { DISPLAYED_REQUEST_STATUSES } from "@/constants/statuses"
+import { REQUEST_TYPE_LABELS } from "@/constants/requests"
+
+// Map request types to icons
+const REQUEST_TYPE_ICONS = {
+  [RequestType.LEAVE_REQUEST]: (
+    <CalendarIcon2 className="h-4 w-4 text-blue-500" />
+  ),
+  [RequestType.LATE_EARLY_REQUEST]: (
+    <Clock className="h-4 w-4 text-amber-500" />
+  ),
+  [RequestType.BUSINESS_TRIP_REQUEST]: (
+    <Briefcase className="h-4 w-4 text-green-500" />
+  ),
+  [RequestType.OVERTIME_REQUEST]: <Clock className="h-4 w-4 text-cyan-500" />,
+  [RequestType.ADVANCE_SALARY_REQUEST]: (
+    <DollarSign className="h-4 w-4 text-emerald-500" />
+  ),
+  [RequestType.RESIGNATION_REQUEST]: (
+    <LogOut className="h-4 w-4 text-red-500" />
+  ),
+  [RequestType.EQUIPMENT_REQUEST]: (
+    <Laptop className="h-4 w-4 text-purple-500" />
+  ),
+  [RequestType.WORK_FROM_HOME_REQUEST]: (
+    <Home className="h-4 w-4 text-indigo-500" />
+  ),
+}
+
+// Form validation schema
+const formSchema = z
+  .object({
+    requestType: z.nativeEnum(RequestType, {
+      required_error: "Vui lòng chọn loại đơn",
+    }),
+    requestedDate: z.date({
+      required_error: "Vui lòng chọn ngày",
+    }),
+    startTime: z.string({
+      required_error: "Vui lòng chọn giờ bắt đầu",
+    }),
+    endTime: z
+      .string({
+        required_error: "Vui lòng chọn giờ kết thúc",
+      })
+      .refine((val) => val !== "", {
+        message: "Vui lòng chọn giờ kết thúc",
+      }),
+    note: z.string().min(1, {
+      message: "Vui lòng nhập lý do",
+    }),
+  })
+  .refine(
+    (data) => {
+      // Convert hours to numbers for comparison
+      const start = Number.parseInt(data.startTime)
+      const end = Number.parseInt(data.endTime)
+      return end > start
+    },
+    {
+      message: "Giờ kết thúc phải sau giờ bắt đầu",
+      path: ["endTime"],
+    }
+  )
 
 export default function EmployeeRequestsPage() {
-  const [date, setDate] = useState<Date>()
+  const [requests, setRequests] = useState<IRequest[]>([])
+  const { getMyRequests } = useGetMyRequests()
+
+  const [toggleReRender, setToggleReRender] = useState(false)
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      const fetchedRequests = await getMyRequests()
+      if (fetchedRequests) setRequests(fetchedRequests)
+    }
+    fetchRequests()
+  }, [toggleReRender])
+
   const [showForm, setShowForm] = useState(false)
+
+  // Initialize form
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      note: "",
+    },
+  })
+
+  const { loading, createRequest } = useCreateRequest()
+
+  // Handle form submission
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    console.log(data)
+
+    const formattedData = {
+      ...data,
+      requestedDate: formatDate(data.requestedDate, "yyyy-MM-dd"),
+      startTime: data.startTime + ":00",
+      endTime: data.endTime + ":00",
+    }
+
+    console.log("formattedData: ", formattedData)
+
+    await createRequest(formattedData)
+
+    // Reset form and hide it
+    form.reset()
+    setShowForm(false)
+    setToggleReRender(!toggleReRender)
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Đơn từ</h1>
-          <p className="text-muted-foreground">Quản lý đơn nghỉ phép, làm thêm giờ và điều chỉnh công.</p>
+          <p className="text-muted-foreground">
+            Quản lý đơn nghỉ phép, làm thêm giờ và các loại đơn từ khác.
+          </p>
         </div>
-        <Button className="bg-[#3db87a] hover:bg-[#35a46c]" onClick={() => setShowForm(!showForm)}>
+        <Button
+          className="bg-[#3db87a] hover:bg-[#35a46c]"
+          onClick={() => setShowForm(!showForm)}
+        >
           {showForm ? "Hủy" : "Tạo đơn mới"}
         </Button>
       </div>
@@ -37,214 +201,279 @@ export default function EmployeeRequestsPage() {
             <CardTitle>Tạo đơn mới</CardTitle>
             <CardDescription>Điền thông tin để tạo đơn từ mới</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="request-type">Loại đơn</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn loại đơn" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="leave">Đơn nghỉ phép</SelectItem>
-                  <SelectItem value="overtime">Đơn làm thêm giờ</SelectItem>
-                  <SelectItem value="adjustment">Đơn điều chỉnh công</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="requestType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Loại đơn <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn loại đơn" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(RequestType).map((type) => (
+                            <SelectItem key={type} value={type}>
+                              <div className="flex items-center gap-2">
+                                {REQUEST_TYPE_ICONS[type]}
+                                <span>{REQUEST_TYPE_LABELS[type]}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="space-y-2">
-              <Label>Ngày</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "dd/MM/yyyy") : <span>Chọn ngày</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="requestedDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Ngày <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Chọn ngày</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              isBefore(date, addDays(new Date(), -1))
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="start-time">Giờ bắt đầu</Label>
-                <Select>
-                  <SelectTrigger id="start-time">
-                    <SelectValue placeholder="Chọn giờ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
-                      <SelectItem key={hour} value={hour.toString().padStart(2, "0")}>
-                        {hour.toString().padStart(2, "0")}:00
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="end-time">Giờ kết thúc</Label>
-                <Select>
-                  <SelectTrigger id="end-time">
-                    <SelectValue placeholder="Chọn giờ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
-                      <SelectItem key={hour} value={hour.toString().padStart(2, "0")}>
-                        {hour.toString().padStart(2, "0")}:00
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="startTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Giờ bắt đầu <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn giờ" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => i).map(
+                              (hour) => (
+                                <SelectItem
+                                  key={hour}
+                                  value={hour.toString().padStart(2, "0")}
+                                >
+                                  {hour.toString().padStart(2, "0")}:00
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <div className="space-y-2">
-              <Label htmlFor="reason">Lý do</Label>
-              <Textarea id="reason" placeholder="Nhập lý do..." />
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Giờ kết thúc <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn giờ" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => i).map(
+                              (hour) => (
+                                <SelectItem
+                                  key={hour}
+                                  value={hour.toString().padStart(2, "0")}
+                                >
+                                  {hour.toString().padStart(2, "0")}:00
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="note">Ghi chú (nếu có)</Label>
-              <Textarea id="note" placeholder="Nhập ghi chú..." />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setShowForm(false)}>
-              Hủy
-            </Button>
-            <Button className="bg-[#3db87a] hover:bg-[#35a46c]">Gửi đơn</Button>
-          </CardFooter>
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Lý do <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Nhập lý do chi tiết..."
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Vui lòng cung cấp lý do chi tiết để quản lý có thể xem
+                        xét đơn của bạn.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowForm(false)}
+                  type="button"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-[#3db87a] hover:bg-[#35a46c]"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    "Gửi đơn"
+                  )}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
       )}
 
       <Card>
-        <CardHeader>
-          <Tabs defaultValue="all">
-            <TabsList>
-              <TabsTrigger value="all">Tất cả đơn</TabsTrigger>
-              <TabsTrigger value="pending">Đang chờ</TabsTrigger>
-              <TabsTrigger value="approved">Đã duyệt</TabsTrigger>
-              <TabsTrigger value="rejected">Từ chối</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="all">
-            <TabsContent value="all" className="space-y-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Loại đơn</TableHead>
-                      <TableHead>Ngày</TableHead>
-                      <TableHead>Lý do</TableHead>
-                      <TableHead>Ngày gửi</TableHead>
-                      <TableHead>Trạng thái</TableHead>
-                      <TableHead>Phản hồi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {myRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {request.type === "Nghỉ phép" ? (
-                              <CalendarIcon2 className="h-4 w-4 text-blue-500" />
-                            ) : request.type === "Làm thêm giờ" ? (
-                              <Clock className="h-4 w-4 text-amber-500" />
-                            ) : (
-                              <FileText className="h-4 w-4 text-purple-500" />
-                            )}
-                            <span className="font-medium">{request.type}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{request.date}</TableCell>
-                        <TableCell>{request.reason}</TableCell>
-                        <TableCell>{request.submitDate}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "border-none",
-                              request.status === "Đã duyệt" && "bg-green-100 text-green-800",
-                              request.status === "Đang chờ" && "bg-amber-100 text-amber-800",
-                              request.status === "Từ chối" && "bg-red-100 text-red-800",
-                            )}
-                          >
-                            {request.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {request.status === "Đã duyệt" ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : request.status === "Từ chối" ? (
-                              <XCircle className="h-4 w-4 text-red-500" />
-                            ) : null}
-                            <span className="text-sm">{request.feedback}</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            <TabsContent value="pending" className="space-y-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Loại đơn</TableHead>
-                      <TableHead>Ngày</TableHead>
-                      <TableHead>Lý do</TableHead>
-                      <TableHead>Ngày gửi</TableHead>
-                      <TableHead>Trạng thái</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {myRequests
-                      .filter((request) => request.status === "Đang chờ")
-                      .map((request) => (
-                        <TableRow key={request.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {request.type === "Nghỉ phép" ? (
-                                <CalendarIcon2 className="h-4 w-4 text-blue-500" />
-                              ) : request.type === "Làm thêm giờ" ? (
-                                <Clock className="h-4 w-4 text-amber-500" />
-                              ) : (
-                                <FileText className="h-4 w-4 text-purple-500" />
-                              )}
-                              <span className="font-medium">{request.type}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{request.date}</TableCell>
-                          <TableCell>{request.reason}</TableCell>
-                          <TableCell>{request.submitDate}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="border-none bg-amber-100 text-amber-800">
-                              {request.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            <TabsContent value="approved" className="space-y-4">
-              {/* Similar table for approved requests */}
-            </TabsContent>
-            <TabsContent value="rejected" className="space-y-4">
-              {/* Similar table for rejected requests */}
-            </TabsContent>
-          </Tabs>
+        <CardContent className="pt-6">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Loại đơn</TableHead>
+                  <TableHead>Ngày</TableHead>
+                  <TableHead>Lý do</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Phản hồi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {requests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        {REQUEST_TYPE_ICONS[request.requestType] || (
+                          <FileText className="h-4 w-4 text-purple-500" />
+                        )}
+                        <span className="font-medium">
+                          {REQUEST_TYPE_LABELS[request.requestType] ||
+                            request.requestType}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatDateString(request.requestedDate)}
+                    </TableCell>
+                    <TableCell
+                      className="max-w-[200px] truncate"
+                      title={request.note}
+                    >
+                      {request.note}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "border-none",
+                          request.status === "APPROVED" &&
+                            "bg-green-100 text-green-800",
+                          request.status === "PENDING" &&
+                            "bg-amber-100 text-amber-800",
+                          request.status === "REJECTED" &&
+                            "bg-red-100 text-red-800"
+                        )}
+                      >
+                        {DISPLAYED_REQUEST_STATUSES[request.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div>
+                          {request.status === "APPROVED" ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : request.status === "REJECTED" ? (
+                            <XCircle className="h-4 w-4 text-red-500" />
+                          ) : null}
+                        </div>
+                        <span className="text-sm">{request.comment}</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -256,7 +485,9 @@ export default function EmployeeRequestsPage() {
         <CardContent>
           <div className="grid gap-6 md:grid-cols-3">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Tổng số ngày phép:</p>
+              <p className="text-sm text-muted-foreground">
+                Tổng số ngày phép:
+              </p>
               <p className="text-2xl font-bold">12 ngày</p>
             </div>
             <div className="space-y-2">
@@ -274,8 +505,8 @@ export default function EmployeeRequestsPage() {
               <span className="font-medium">Lưu ý</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Số ngày phép còn lại sẽ được cập nhật sau khi đơn nghỉ phép được duyệt. Vui lòng gửi đơn nghỉ phép trước
-              ít nhất 3 ngày làm việc.
+              Số ngày phép còn lại sẽ được cập nhật sau khi đơn nghỉ phép được
+              duyệt. Vui lòng gửi đơn nghỉ phép trước ít nhất 3 ngày làm việc.
             </p>
           </div>
         </CardContent>
@@ -284,41 +515,68 @@ export default function EmployeeRequestsPage() {
   )
 }
 
-const myRequests = [
-  {
-    id: 1,
-    type: "Nghỉ phép",
-    date: "20/04/2025",
-    reason: "Việc gia đình",
-    submitDate: "15/04/2025",
-    status: "Đã duyệt",
-    feedback: "Đã duyệt bởi Nguyễn Văn A",
-  },
-  {
-    id: 2,
-    type: "Điều chỉnh công",
-    date: "15/04/2025",
-    reason: "Quên check-out",
-    submitDate: "16/04/2025",
-    status: "Đã duyệt",
-    feedback: "Đã duyệt bởi Nguyễn Văn A",
-  },
-  {
-    id: 3,
-    type: "Làm thêm giờ",
-    date: "10/04/2025",
-    reason: "Hoàn thành dự án gấp",
-    submitDate: "08/04/2025",
-    status: "Từ chối",
-    feedback: "Không có kế hoạch OT trong tháng này",
-  },
-  {
-    id: 4,
-    type: "Nghỉ phép",
-    date: "05/05/2025",
-    reason: "Đi khám bệnh",
-    submitDate: "22/04/2025",
-    status: "Đang chờ",
-    feedback: "",
-  },
-]
+// const myRequests = [
+//   {
+//     id: 1,
+//     type: RequestType.LEAVE_REQUEST,
+//     date: "20/04/2025",
+//     reason: "Việc gia đình",
+//     submitDate: "15/04/2025",
+//     status: "Đã duyệt",
+//     feedback: "Đã duyệt bởi Nguyễn Văn A",
+//   },
+//   {
+//     id: 2,
+//     type: RequestType.LATE_EARLY_REQUEST,
+//     date: "15/04/2025",
+//     reason: "Quên check-out",
+//     submitDate: "16/04/2025",
+//     status: "Đã duyệt",
+//     feedback: "Đã duyệt bởi Nguyễn Văn A",
+//   },
+//   {
+//     id: 3,
+//     type: RequestType.OVERTIME_REQUEST,
+//     date: "10/04/2025",
+//     reason: "Hoàn thành dự án gấp",
+//     submitDate: "08/04/2025",
+//     status: "Từ chối",
+//     feedback: "Không có kế hoạch OT trong tháng này",
+//   },
+//   {
+//     id: 4,
+//     type: RequestType.LEAVE_REQUEST,
+//     date: "05/05/2025",
+//     reason: "Đi khám bệnh",
+//     submitDate: "22/04/2025",
+//     status: "Đang chờ",
+//     feedback: "",
+//   },
+//   {
+//     id: 5,
+//     type: RequestType.BUSINESS_TRIP_REQUEST,
+//     date: "12/05/2025",
+//     reason: "Gặp khách hàng tại Đà Nẵng",
+//     submitDate: "25/04/2025",
+//     status: "Đang chờ",
+//     feedback: "",
+//   },
+//   {
+//     id: 6,
+//     type: RequestType.ADVANCE_SALARY_REQUEST,
+//     date: "01/05/2025",
+//     reason: "Chi phí y tế khẩn cấp",
+//     submitDate: "20/04/2025",
+//     status: "Đã duyệt",
+//     feedback: "Đã duyệt bởi Trần Thị B",
+//   },
+//   {
+//     id: 7,
+//     type: RequestType.EQUIPMENT_REQUEST,
+//     date: "05/04/2025",
+//     reason: "Cần laptop mới cho dự án",
+//     submitDate: "01/04/2025",
+//     status: "Từ chối",
+//     feedback: "Chưa đến thời hạn cấp thiết bị mới",
+//   },
+// ]

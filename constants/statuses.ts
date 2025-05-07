@@ -3,3 +3,9 @@ export const DISPLAYED_ATTENDANCE_STATUSES = {
   LATE: "Đi muộn",
   ABSENT: "Vắng",
 }
+
+export const DISPLAYED_REQUEST_STATUSES = {
+  APPROVED: "Đã duyệt",
+  PENDING: "Chờ duyệt",
+  REJECTED: "Từ chối",
+}

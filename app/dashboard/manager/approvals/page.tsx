@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,7 +26,37 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock } from "lucide-react"
+import {
+  Clock,
+  Check,
+  X,
+  FileText,
+  CalendarPlus2Icon as CalendarIcon2,
+  Briefcase,
+  DollarSign,
+  LogOut,
+  Laptop,
+  Home,
+  Loader2,
+} from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { IRequest, RequestType } from "@/types/Request"
+import useGetAllRequests from "@/hooks/manager/useGetAllRequests"
+import { cn } from "@/lib/utils"
+import { DISPLAYED_REQUEST_STATUSES } from "@/constants/statuses"
+import { REQUEST_TYPE_LABELS } from "@/constants/requests"
+import { formatDateString } from "@/utils/formatDate"
+import useUpdateRequest from "@/hooks/manager/useUpdateRequest"
+import { Spinner } from "@/components/Spinner"
 
 // Dữ liệu mẫu cho đơn nghỉ phép
 const leaveRequests = [
@@ -111,10 +144,71 @@ const overtimeRequests = [
 ]
 
 export default function ApprovalsPage() {
+  const [requests, setRequests] = useState<IRequest[]>([])
+  const { getAllRequests } = useGetAllRequests()
+
+  const [toggleReRender, setToggleReRender] = useState(false)
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      const fetchedRequests = await getAllRequests()
+      if (fetchedRequests) setRequests(fetchedRequests)
+    }
+    fetchRequests()
+  }, [toggleReRender])
+
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false)
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState<IRequest>()
+  const [comment, setComment] = useState("")
+
+  const handleApprove = (request: IRequest) => {
+    setSelectedRequest(request)
+    setComment("")
+    setApproveDialogOpen(true)
+  }
+
+  const handleReject = (request: IRequest) => {
+    setSelectedRequest(request)
+    setComment("")
+    setRejectDialogOpen(true)
+  }
+
+  const { loading, updateRequest } = useUpdateRequest()
+
+  const confirmApprove = async () => {
+    const data = {
+      id: selectedRequest?.id,
+      comment,
+      status: "APPROVED",
+    }
+
+    await updateRequest(data)
+    setApproveDialogOpen(false)
+    setToggleReRender(!toggleReRender)
+  }
+
+  const confirmReject = async () => {
+    const data = {
+      id: selectedRequest?.id,
+      comment,
+      status: "REJECTED",
+    }
+
+    await updateRequest(data)
+    setRejectDialogOpen(false)
+    setToggleReRender(!toggleReRender)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Duyệt đơn từ</h1>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Duyệt đơn từ</h1>
+          <CardDescription>
+            Quản lý và duyệt các đơn từ của nhân viên trong bộ phận của bạn.
+          </CardDescription>
+        </div>
         <div className="flex items-center gap-2">
           <Select defaultValue="all">
             <SelectTrigger className="w-[180px]">
@@ -127,7 +221,7 @@ export default function ApprovalsPage() {
               <SelectItem value="rejected">Từ chối</SelectItem>
             </SelectContent>
           </Select>
-          <Select defaultValue="all">
+          {/* <Select defaultValue="all">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lọc theo phòng ban" />
             </SelectTrigger>
@@ -138,220 +232,269 @@ export default function ApprovalsPage() {
               <SelectItem value="hr">Nhân sự</SelectItem>
               <SelectItem value="accounting">Kế toán</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
       </div>
 
-      <Tabs defaultValue="leave" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="leave" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>Đơn nghỉ phép</span>
-          </TabsTrigger>
-          <TabsTrigger value="overtime" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span>Đơn làm thêm giờ</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="leave" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách đơn nghỉ phép</CardTitle>
-              <CardDescription>
-                Quản lý và duyệt các đơn nghỉ phép của nhân viên trong bộ phận
-                của bạn.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mã đơn</TableHead>
-                    <TableHead>Nhân viên</TableHead>
-                    <TableHead>Phòng ban</TableHead>
-                    <TableHead>Loại nghỉ</TableHead>
-                    <TableHead>Thời gian</TableHead>
-                    <TableHead>Số ngày</TableHead>
-                    <TableHead>Lý do</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Hành động</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leaveRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell className="font-medium">
-                        {request.id}
-                      </TableCell>
-                      <TableCell>{request.employee}</TableCell>
-                      <TableCell>{request.department}</TableCell>
-                      <TableCell>{request.type}</TableCell>
-                      <TableCell>
-                        {request.startDate} - {request.endDate}
-                      </TableCell>
-                      <TableCell>{request.days}</TableCell>
-                      <TableCell
-                        className="max-w-[200px] truncate"
-                        title={request.reason}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead className="whitespace-nowrap">Nhân viên</TableHead>
+                  {/* <TableHead>Phòng ban</TableHead> */}
+                  <TableHead>Loại đơn</TableHead>
+                  <TableHead>Ngày</TableHead>
+                  <TableHead>Thời gian</TableHead>
+                  <TableHead>Lý do</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {requests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">{request.id}</TableCell>
+                    <TableCell>{request.employeeName}</TableCell>
+                    {/* <TableCell>{request.department}</TableCell> */}
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div>
+                          {REQUEST_TYPE_ICONS[request.requestType] || (
+                            <FileText className="h-4 w-4 text-purple-500" />
+                          )}
+                        </div>
+                        <span className="font-medium whitespace-nowrap">
+                          {REQUEST_TYPE_LABELS[request.requestType] ||
+                            request.requestType}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatDateString(request.requestedDate)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {request.startTime.slice(0, 5)} -{" "}
+                      {request.endTime.slice(0, 5)}
+                    </TableCell>
+                    <TableCell
+                      className="max-w-[200px] truncate"
+                      title={request.note}
+                    >
+                      {request.note}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "border-none whitespace-nowrap",
+                          request.status === "APPROVED" &&
+                            "bg-green-100 text-green-800",
+                          request.status === "PENDING" &&
+                            "bg-amber-100 text-amber-800",
+                          request.status === "REJECTED" &&
+                            "bg-red-100 text-red-800"
+                        )}
                       >
-                        {request.reason}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            request.status === "Chờ duyệt"
-                              ? "outline"
-                              : request.status === "Đã duyệt"
-                              ? "success"
-                              : "destructive"
-                          }
-                        >
-                          {request.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {request.status === "Chờ duyệt" ? (
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-xs"
-                            >
-                              Xem chi tiết
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-8 bg-[#3db87a] text-xs hover:bg-[#35a46c]"
-                            >
-                              Duyệt
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="h-8 text-xs"
-                            >
-                              Từ chối
-                            </Button>
-                          </div>
-                        ) : (
+                        {DISPLAYED_REQUEST_STATUSES[request.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {request.status === "PENDING" && (
+                        <div className="flex space-x-2">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="h-8 text-xs"
+                            variant="default"
+                            className="h-8 bg-[#3db87a] text-xs hover:bg-[#35a46c]"
+                            onClick={() => handleApprove(request)}
                           >
-                            Xem chi tiết
+                            Duyệt
                           </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="overtime" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách đơn làm thêm giờ</CardTitle>
-              <CardDescription>
-                Quản lý và duyệt các đơn làm thêm giờ của nhân viên trong bộ
-                phận của bạn.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mã đơn</TableHead>
-                    <TableHead>Nhân viên</TableHead>
-                    <TableHead>Phòng ban</TableHead>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Thời gian</TableHead>
-                    <TableHead>Số giờ</TableHead>
-                    <TableHead>Lý do</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Hành động</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {overtimeRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell className="font-medium">
-                        {request.id}
-                      </TableCell>
-                      <TableCell>{request.employee}</TableCell>
-                      <TableCell>{request.department}</TableCell>
-                      <TableCell>{request.date}</TableCell>
-                      <TableCell>
-                        {request.startTime} - {request.endTime}
-                      </TableCell>
-                      <TableCell>{request.hours}</TableCell>
-                      <TableCell
-                        className="max-w-[200px] truncate"
-                        title={request.reason}
-                      >
-                        {request.reason}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            request.status === "Chờ duyệt"
-                              ? "outline"
-                              : request.status === "Đã duyệt"
-                              ? "success"
-                              : "destructive"
-                          }
-                        >
-                          {request.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {request.status === "Chờ duyệt" ? (
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-xs"
-                            >
-                              Xem chi tiết
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-8 bg-[#3db87a] text-xs hover:bg-[#35a46c]"
-                            >
-                              Duyệt
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="h-8 text-xs"
-                            >
-                              Từ chối
-                            </Button>
-                          </div>
-                        ) : (
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="destructive"
                             className="h-8 text-xs"
+                            onClick={() => handleReject(request)}
                           >
-                            Xem chi tiết
+                            Từ chối
                           </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modal xác nhận duyệt đơn */}
+      {selectedRequest && (
+        <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-[#3db87a]">
+                <Check className="h-5 w-5" /> Xác nhận duyệt đơn
+              </DialogTitle>
+              <DialogDescription>
+                Bạn có chắc chắn muốn duyệt đơn này?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4 text-sm">
+                <div className="text-right">Loại đơn:</div>
+                <div className="col-span-3 font-semibold">
+                  {REQUEST_TYPE_LABELS[selectedRequest.requestType] ||
+                    selectedRequest.requestType}
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 text-sm">
+                <div className="text-right">Nhân viên:</div>
+                <div className="col-span-3 font-semibold">
+                  {selectedRequest.employeeName}
+                </div>
+              </div>
+              {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Phòng ban:</Label>
+              <div className="col-span-3">{selectedRequest?.department}</div>
+            </div> */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right" htmlFor="approve-comment">
+                  Ghi chú:
+                </Label>
+                <Textarea
+                  id="approve-comment"
+                  placeholder="Nhập ghi chú nếu có..."
+                  className="col-span-3"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              {loading ? (
+                <Button variant={"secondary"} className="w-full" disabled>
+                  <Spinner />
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setApproveDialogOpen(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    className="bg-[#3db87a] hover:bg-[#35a46c]"
+                    onClick={confirmApprove}
+                  >
+                    Xác nhận duyệt
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal xác nhận từ chối đơn */}
+      {selectedRequest && (
+        <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <X className="h-5 w-5" /> Xác nhận từ chối đơn
+              </DialogTitle>
+              <DialogDescription>
+                Bạn có chắc chắn muốn từ chối đơn này?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4 text-sm">
+                <div className="text-right">Loại đơn:</div>
+                <div className="col-span-3 font-semibold">
+                  {REQUEST_TYPE_LABELS[selectedRequest.requestType] ||
+                    selectedRequest.requestType}
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 text-sm">
+                <div className="text-right">Nhân viên:</div>
+                <div className="col-span-3 font-semibold">
+                  {selectedRequest.employeeName}
+                </div>
+              </div>
+              {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Phòng ban:</Label>
+              <div className="col-span-3">{selectedRequest?.department}</div>
+            </div> */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right" htmlFor="reject-comment">
+                  Lý do từ chối:
+                </Label>
+                <Textarea
+                  id="reject-comment"
+                  placeholder="Vui lòng nhập lý do từ chối..."
+                  className="col-span-3"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              {loading ? (
+                <Button variant={"secondary"} className="w-full" disabled>
+                  <Spinner />
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setRejectDialogOpen(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={confirmReject}
+                    disabled={!comment.trim()}
+                  >
+                    Xác nhận từ chối
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
+}
+
+const REQUEST_TYPE_ICONS = {
+  [RequestType.LEAVE_REQUEST]: (
+    <CalendarIcon2 className="h-4 w-4 text-blue-500" />
+  ),
+  [RequestType.LATE_EARLY_REQUEST]: (
+    <Clock className="h-4 w-4 text-amber-500" />
+  ),
+  [RequestType.BUSINESS_TRIP_REQUEST]: (
+    <Briefcase className="h-4 w-4 text-green-500" />
+  ),
+  [RequestType.OVERTIME_REQUEST]: <Clock className="h-4 w-4 text-cyan-500" />,
+  [RequestType.ADVANCE_SALARY_REQUEST]: (
+    <DollarSign className="h-4 w-4 text-emerald-500" />
+  ),
+  [RequestType.RESIGNATION_REQUEST]: (
+    <LogOut className="h-4 w-4 text-red-500" />
+  ),
+  [RequestType.EQUIPMENT_REQUEST]: (
+    <Laptop className="h-4 w-4 text-purple-500" />
+  ),
+  [RequestType.WORK_FROM_HOME_REQUEST]: (
+    <Home className="h-4 w-4 text-indigo-500" />
+  ),
 }
