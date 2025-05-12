@@ -171,7 +171,7 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-2">
-              {jobs.slice(0, 3).map((job) => (
+              {jobs.slice(0, 4).map((job) => (
                 <div
                   key={job.id}
                   className="rounded-lg border bg-card text-card-foreground shadow-sm"
@@ -189,12 +189,14 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-1">
                           <CircleDollarSign className="h-4 w-4" />
-                          <span>{job.salary} triệu VNĐ</span>
+                          <span>{job.salary} VNĐ</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{formatDateString(job.closedDate)}</span>
-                        </div>
+                        {job.closedDate && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{formatDateString(job.closedDate)}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="w-full pt-4">
                         <Link href={`/jobs/${job.id}`} className="w-full">

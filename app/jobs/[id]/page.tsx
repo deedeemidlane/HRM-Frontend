@@ -63,10 +63,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <CircleDollarSign className="h-4 w-4" />
                 <span>{job.salary} triệu VNĐ</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>Hạn nộp: {formatDateString(job.closedDate)}</span>
-              </div>
+              {job.closedDate && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  <span>Hạn nộp: {formatDateString(job.closedDate)}</span>
+                </div>
+              )}
               <Badge className="bg-[#edf7f2] text-[#3db87a]">
                 {job.departmentName}
               </Badge>

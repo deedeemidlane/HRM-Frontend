@@ -223,7 +223,7 @@ export default function CreateJobPostingPage() {
                   name="salary"
                   render={({ field }) => (
                     <FormItem className="flex flex-col gap-1">
-                      <FormLabel>Mức lương (triệu VNĐ)</FormLabel>
+                      <FormLabel>Mức lương (VNĐ)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"

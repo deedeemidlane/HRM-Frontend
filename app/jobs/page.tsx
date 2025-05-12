@@ -185,7 +185,7 @@ export default function JobsPage() {
                             </div>
                             <div className="flex items-center gap-1">
                               <CircleDollarSign className="h-4 w-4" />
-                              <span>{job.salary} triệu VNĐ</span>
+                              <span>{job.salary} VNĐ</span>
                             </div>
                             {/* <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
@@ -211,12 +211,15 @@ export default function JobsPage() {
                               <ExternalLink className="mb-0.5" />
                             </Button>
                           </Link>
-                          <div className="flex items-center gap-1 text-sm font-semibold text-blue-600">
-                            <Calendar className="h-4 w-4" />
-                            <span>
-                              Hạn ứng tuyển: {formatDateString(job.closedDate)}
-                            </span>
-                          </div>
+                          {job.closedDate && (
+                            <div className="flex items-center gap-1 text-sm font-semibold text-blue-600">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                Hạn ứng tuyển:{" "}
+                                {formatDateString(job.closedDate)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -139,7 +139,7 @@ export function DashboardSidebar({ userRole }: { userRole?: string }) {
       <div className="flex h-16 items-center border-b px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <span className="font-bold text-2xl text-[#3db87a]">ADA</span>
-          <span className="pl-2 border-l-2">Trang quản lý</span>
+          <span className="pl-2 border-l-2">Nội bộ</span>
         </Link>
       </div>
       <div className="flex-1 overflow-auto py-4">

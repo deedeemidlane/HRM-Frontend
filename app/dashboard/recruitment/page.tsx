@@ -118,7 +118,7 @@ export default function RecruitmentManagementPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Clock className="h-4 w-4 text-[#3db87a]" />
-                      <span>{job.salary} triệu VNĐ</span>
+                      <span>{job.salary} VNĐ</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="h-4 w-4 text-[#3db87a]" />
