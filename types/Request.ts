@@ -9,6 +9,8 @@ export enum RequestType {
   WORK_FROM_HOME_REQUEST = "WORK_FROM_HOME_REQUEST",
 }
 
+export type RequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "ALL"
+
 export interface IRequest {
   employeeName: string
   createdDate: string
@@ -21,7 +23,7 @@ export interface IRequest {
   endTime: string
   note: string
   comment: string
-  status: "PENDING" | "APPROVED" | "REJECTED"
+  status: Exclude<RequestStatus, "ALL">
   approved: boolean
   deleted: boolean
 }

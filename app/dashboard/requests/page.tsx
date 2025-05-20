@@ -411,6 +411,7 @@ export default function EmployeeRequestsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>ID</TableHead>
                   <TableHead>Loại đơn</TableHead>
                   <TableHead>Ngày</TableHead>
                   <TableHead>Lý do</TableHead>
@@ -419,58 +420,69 @@ export default function EmployeeRequestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2 whitespace-nowrap">
-                        {REQUEST_TYPE_ICONS[request.requestType] || (
-                          <FileText className="h-4 w-4 text-purple-500" />
-                        )}
-                        <span className="font-medium">
-                          {REQUEST_TYPE_LABELS[request.requestType] ||
-                            request.requestType}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDateString(request.requestedDate)}
-                    </TableCell>
-                    <TableCell
-                      className="max-w-[200px] truncate"
-                      title={request.note}
-                    >
-                      {request.note}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "border-none",
-                          request.status === "APPROVED" &&
-                            "bg-green-100 text-green-800",
-                          request.status === "PENDING" &&
-                            "bg-amber-100 text-amber-800",
-                          request.status === "REJECTED" &&
-                            "bg-red-100 text-red-800"
-                        )}
-                      >
-                        {DISPLAYED_REQUEST_STATUSES[request.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div>
-                          {request.status === "APPROVED" ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : request.status === "REJECTED" ? (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          ) : null}
+                {requests.length > 0 ? (
+                  requests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">
+                        {request.id}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+                          {REQUEST_TYPE_ICONS[request.requestType] || (
+                            <FileText className="h-4 w-4 text-purple-500" />
+                          )}
+                          <span className="font-medium">
+                            {REQUEST_TYPE_LABELS[request.requestType] ||
+                              request.requestType}
+                          </span>
                         </div>
-                        <span className="text-sm">{request.comment}</span>
-                      </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatDateString(request.requestedDate)}
+                      </TableCell>
+                      <TableCell
+                        className="max-w-[200px] truncate"
+                        title={request.note}
+                      >
+                        {request.note}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "border-none",
+                            request.status === "APPROVED" &&
+                              "bg-green-100 text-green-800",
+                            request.status === "PENDING" &&
+                              "bg-amber-100 text-amber-800",
+                            request.status === "REJECTED" &&
+                              "bg-red-100 text-red-800"
+                          )}
+                        >
+                          {DISPLAYED_REQUEST_STATUSES[request.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            {request.status === "APPROVED" ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : request.status === "REJECTED" ? (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            ) : null}
+                          </div>
+                          <span className="text-sm">{request.comment}</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="text-center">
+                    <TableCell colSpan={8} className="py-8">
+                      Không có đơn từ nào
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>

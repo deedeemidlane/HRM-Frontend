@@ -102,9 +102,9 @@ export default function EmployeeCheckinPage() {
         const { latitude, longitude } = position.coords
 
         const data = {
-          time: formatDate(new Date(), "hh:mm:00"),
-          longitude,
-          latitude,
+          time: formatDate(new Date(), "HH:mm:00"),
+          longitude: 105.7759653,
+          latitude: 21.0177312,
         }
 
         console.log("check in data: ", data)

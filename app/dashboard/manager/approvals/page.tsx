@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import {
   Clock,
@@ -49,7 +48,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { IRequest, RequestType } from "@/types/Request"
+import { IRequest, RequestStatus, RequestType } from "@/types/Request"
 import useGetAllRequests from "@/hooks/manager/useGetAllRequests"
 import { cn } from "@/lib/utils"
 import { DISPLAYED_REQUEST_STATUSES } from "@/constants/statuses"
@@ -58,104 +57,23 @@ import { formatDateString } from "@/utils/formatDate"
 import useUpdateRequest from "@/hooks/manager/useUpdateRequest"
 import { Spinner } from "@/components/Spinner"
 
-// Dữ liệu mẫu cho đơn nghỉ phép
-const leaveRequests = [
-  {
-    id: "LEA001",
-    employee: "Nguyễn Văn A",
-    department: "Kỹ thuật",
-    type: "Nghỉ phép",
-    startDate: "15/05/2023",
-    endDate: "17/05/2023",
-    days: 3,
-    reason: "Lý do cá nhân",
-    status: "Chờ duyệt",
-  },
-  {
-    id: "LEA002",
-    employee: "Trần Thị B",
-    department: "Marketing",
-    type: "Nghỉ ốm",
-    startDate: "10/05/2023",
-    endDate: "12/05/2023",
-    days: 3,
-    reason: "Bị ốm, có giấy bác sĩ",
-    status: "Chờ duyệt",
-  },
-  {
-    id: "LEA003",
-    employee: "Lê Văn C",
-    department: "Nhân sự",
-    type: "Nghỉ phép",
-    startDate: "20/05/2023",
-    endDate: "20/05/2023",
-    days: 1,
-    reason: "Việc gia đình",
-    status: "Đã duyệt",
-  },
-  {
-    id: "LEA004",
-    employee: "Phạm Thị D",
-    department: "Kế toán",
-    type: "Nghỉ không lương",
-    startDate: "01/06/2023",
-    endDate: "15/06/2023",
-    days: 15,
-    reason: "Du lịch nước ngoài",
-    status: "Từ chối",
-  },
-]
-
-// Dữ liệu mẫu cho đơn làm thêm giờ
-const overtimeRequests = [
-  {
-    id: "OT001",
-    employee: "Nguyễn Văn A",
-    department: "Kỹ thuật",
-    date: "18/05/2023",
-    startTime: "18:00",
-    endTime: "21:00",
-    hours: 3,
-    reason: "Hoàn thành dự án gấp",
-    status: "Chờ duyệt",
-  },
-  {
-    id: "OT002",
-    employee: "Trần Thị B",
-    department: "Marketing",
-    date: "19/05/2023",
-    startTime: "18:00",
-    endTime: "20:00",
-    hours: 2,
-    reason: "Chuẩn bị tài liệu cho sự kiện",
-    status: "Chờ duyệt",
-  },
-  {
-    id: "OT003",
-    employee: "Lê Văn C",
-    department: "Nhân sự",
-    date: "15/05/2023",
-    startTime: "18:00",
-    endTime: "22:00",
-    hours: 4,
-    reason: "Tuyển dụng gấp",
-    status: "Đã duyệt",
-  },
-]
-
 export default function ApprovalsPage() {
   const [requests, setRequests] = useState<IRequest[]>([])
   const { getAllRequests } = useGetAllRequests()
 
   const [toggleReRender, setToggleReRender] = useState(false)
 
+  const [selectedStatus, setSelectedStatus] = useState<RequestStatus>("ALL")
+
   useEffect(() => {
     const fetchRequests = async () => {
-      const fetchedRequests = await getAllRequests()
+      const fetchedRequests = await getAllRequests(
+        selectedStatus !== "ALL" ? selectedStatus : undefined
+      )
       if (fetchedRequests) setRequests(fetchedRequests)
     }
     fetchRequests()
-  }, [toggleReRender])
+  }, [toggleReRender, selectedStatus])
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
@@ -210,15 +128,18 @@ export default function ApprovalsPage() {
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
+          <Select
+            defaultValue={selectedStatus || "ALL"}
+            onValueChange={(value: RequestStatus) => setSelectedStatus(value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lọc theo trạng thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tất cả trạng thái</SelectItem>
-              <SelectItem value="pending">Chờ duyệt</SelectItem>
-              <SelectItem value="approved">Đã duyệt</SelectItem>
-              <SelectItem value="rejected">Từ chối</SelectItem>
+              <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+              <SelectItem value="PENDING">Chờ duyệt</SelectItem>
+              <SelectItem value="APPROVED">Đã duyệt</SelectItem>
+              <SelectItem value="REJECTED">Từ chối</SelectItem>
             </SelectContent>
           </Select>
           {/* <Select defaultValue="all">
@@ -254,77 +175,89 @@ export default function ApprovalsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell className="font-medium">{request.id}</TableCell>
-                    <TableCell>{request.employeeName}</TableCell>
-                    {/* <TableCell>{request.department}</TableCell> */}
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div>
-                          {REQUEST_TYPE_ICONS[request.requestType] || (
-                            <FileText className="h-4 w-4 text-purple-500" />
-                          )}
+                {requests.length > 0 ? (
+                  requests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">
+                        {request.id}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {request.employeeName}
+                      </TableCell>
+                      {/* <TableCell>{request.department}</TableCell> */}
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            {REQUEST_TYPE_ICONS[request.requestType] || (
+                              <FileText className="h-4 w-4 text-purple-500" />
+                            )}
+                          </div>
+                          <span className="font-medium whitespace-nowrap">
+                            {REQUEST_TYPE_LABELS[request.requestType] ||
+                              request.requestType}
+                          </span>
                         </div>
-                        <span className="font-medium whitespace-nowrap">
-                          {REQUEST_TYPE_LABELS[request.requestType] ||
-                            request.requestType}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDateString(request.requestedDate)}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {request.startTime.slice(0, 5)} -{" "}
-                      {request.endTime.slice(0, 5)}
-                    </TableCell>
-                    <TableCell
-                      className="max-w-[200px] truncate"
-                      title={request.note}
-                    >
-                      {request.note}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "border-none whitespace-nowrap",
-                          request.status === "APPROVED" &&
-                            "bg-green-100 text-green-800",
-                          request.status === "PENDING" &&
-                            "bg-amber-100 text-amber-800",
-                          request.status === "REJECTED" &&
-                            "bg-red-100 text-red-800"
-                        )}
+                      </TableCell>
+                      <TableCell>
+                        {formatDateString(request.requestedDate)}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {request.startTime.slice(0, 5)} -{" "}
+                        {request.endTime.slice(0, 5)}
+                      </TableCell>
+                      <TableCell
+                        className="max-w-[200px] truncate"
+                        title={request.note}
                       >
-                        {DISPLAYED_REQUEST_STATUSES[request.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {request.status === "PENDING" && (
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="h-8 bg-[#3db87a] text-xs hover:bg-[#35a46c]"
-                            onClick={() => handleApprove(request)}
-                          >
-                            Duyệt
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-8 text-xs"
-                            onClick={() => handleReject(request)}
-                          >
-                            Từ chối
-                          </Button>
-                        </div>
-                      )}
+                        {request.note}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "border-none whitespace-nowrap",
+                            request.status === "APPROVED" &&
+                              "bg-green-100 text-green-800",
+                            request.status === "PENDING" &&
+                              "bg-amber-100 text-amber-800",
+                            request.status === "REJECTED" &&
+                              "bg-red-100 text-red-800"
+                          )}
+                        >
+                          {DISPLAYED_REQUEST_STATUSES[request.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {request.status === "PENDING" && (
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-8 bg-[#3db87a] text-xs hover:bg-[#35a46c]"
+                              onClick={() => handleApprove(request)}
+                            >
+                              Duyệt
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="h-8 text-xs"
+                              onClick={() => handleReject(request)}
+                            >
+                              Từ chối
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="text-center">
+                    <TableCell colSpan={8} className="py-8">
+                      Không tìm thấy đơn từ nào
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>

@@ -101,16 +101,17 @@ export default function InterviewsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {interviews.map((interview) => (
-                  <TableRow key={interview.id}>
-                    <TableCell>{interview.id}</TableCell>
-                    <TableCell className="font-medium">
-                      {interview.title}
-                    </TableCell>
-                    <TableCell>{interview.time}</TableCell>
-                    <TableCell>{formatDateString(interview.date)}</TableCell>
-                    {/* <TableCell>{interview.round}</TableCell> */}
-                    {/* <TableCell>
+                {interviews.length > 0 ? (
+                  interviews.map((interview) => (
+                    <TableRow key={interview.id}>
+                      <TableCell>{interview.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {interview.title}
+                      </TableCell>
+                      <TableCell>{interview.time}</TableCell>
+                      <TableCell>{formatDateString(interview.date)}</TableCell>
+                      {/* <TableCell>{interview.round}</TableCell> */}
+                      {/* <TableCell>
                       <Badge
                         variant="outline"
                         className={cn(
@@ -126,43 +127,50 @@ export default function InterviewsPage() {
                         {interview.status}
                       </Badge>
                     </TableCell> */}
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Mở menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {/* <DropdownMenuItem>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Mở menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {/* <DropdownMenuItem>
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
                           </DropdownMenuItem> */}
-                          <DropdownMenuItem>
-                            <FileEdit className="mb-0.5 h-4 w-4" />
-                            Chỉnh sửa
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="p-0">
-                            <Button
-                              variant={"ghost"}
-                              className="text-red-600 hover:text-red-600 p-2 w-full justify-start"
-                              onClick={() => {
-                                // setSelectedEmployee(employee)
-                                // setOpenConfirmDeleteModal(true)
-                              }}
-                            >
-                              <Trash2 className="mb-0.5 h-4 w-4" />
-                              Xóa
-                            </Button>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <DropdownMenuItem>
+                              <FileEdit className="mb-0.5 h-4 w-4" />
+                              Chỉnh sửa
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="p-0">
+                              <Button
+                                variant={"ghost"}
+                                className="text-red-600 hover:text-red-600 p-2 w-full justify-start"
+                                onClick={() => {
+                                  // setSelectedEmployee(employee)
+                                  // setOpenConfirmDeleteModal(true)
+                                }}
+                              >
+                                <Trash2 className="mb-0.5 h-4 w-4" />
+                                Xóa
+                              </Button>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="text-center">
+                    <TableCell colSpan={6} className="py-8">
+                      Không tìm thấy lịch phỏng vấn nào
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>

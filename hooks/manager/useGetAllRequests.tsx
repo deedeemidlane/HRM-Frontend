@@ -1,12 +1,15 @@
+import { RequestStatus } from "@/types/Request"
 import { useState } from "react"
 
 const useGetAllRequests = () => {
   const [loading, setLoading] = useState(false)
 
-  const getAllRequests = async () => {
+  const getAllRequests = async (status?: RequestStatus) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/requests?sort=id,asc`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/requests?sort=id,asc${
+          status ? `&requestStatus=${status}` : ""
+        }`,
         {
           method: "GET",
           headers: {

@@ -177,22 +177,26 @@ export default function ContractsPage() {
                       <TableCell>{contract.employeeName}</TableCell>
                       {/* <TableCell>{contract.type}</TableCell> */}
                       <TableCell>
-                        {formatDateString(contract.startDate)}
+                        {contract.startDate
+                          ? formatDateString(contract.startDate)
+                          : "-"}
                       </TableCell>
                       <TableCell>
-                        {formatDateString(contract.endDate)}
+                        {contract.endDate
+                          ? formatDateString(contract.endDate)
+                          : "-"}
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
                           className={cn(
                             "border-none",
-                            contract.startDate
+                            contract.active
                               ? "bg-green-100 text-green-800"
                               : "bg-gray-100 text-gray-800"
                           )}
                         >
-                          {contract.startDate ? "Hiện hành" : "Không khả dụng"}
+                          {contract.active ? "Hiện hành" : "Không khả dụng"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
